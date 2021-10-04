@@ -15,7 +15,7 @@ class CLIP():
     def __init__(self, model_name='ViT-B/32'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model_name = model_name
-        self.model, self.preprocessor = clip.load(self.model_name, device=self.device)
+        self.model, self.encoder = clip.load(self.model_name, device=self.device)
 
     def encode_images(self, stacked_images: torch.Tensor) -> np.ndarray:
         with torch.no_grad():
@@ -56,7 +56,7 @@ class dataset():
 
     def compute_clip_image_embeddings(self, image_batch: List[str]) -> np.ndarray:
         '''
-        Encoded image list into vectors using the model and preprocessor loaded from CLIP
+        Encoded image list into vectors using the model and encoder loaded from CLIP
         
         params:
            - image_batch: List(str)
@@ -74,9 +74,9 @@ class dataset():
         images = [Image.open(image_file) for image_file in image_batch]
         filenames = [convert_to_concepts(image_file)['filename'] for image_file in image_batch]
         
-        # Preprocess all images
-        images_preprocessed = torch.stack([self.clip_model.preprocessor(image) for image in images]).to(self.clip_model.device)
-        image_embeddings = self.clip_model.encode_images(images_preprocessed)
+        # Encode all images
+        images_encoded = torch.stack([self.clip_model.encoder(image) for image in images]).to(self.clip_model.device)
+        image_embeddings = self.clip_model.encode_images(images_encoded)
 
         # Match file name with the embedding vectors
         for idx in range(len(image_batch)):
@@ -84,7 +84,7 @@ class dataset():
 
         return image_embeddings_dict
 
-    def preprocess_dataset(self, entire_dataset=True):
+    def encode_dataset(self, entire_dataset=True):
         '''
         Images will be divided into batches and encoded into embedding vectors.
         Then all embedding files will be saved for later use.
@@ -103,10 +103,10 @@ class dataset():
         
         # Compute how many batches are needed
         if entire_dataset:
-            print('Preprocess the whole dataset...')
+            print('Encode the whole dataset...')
             batches = math.ceil(len(self.image_names) / self.batch_size)
         else:
-            print('Preprocess a subset of the dataset...')
+            print('Encode a subset of the dataset...')
             batches = 10
         
         # Process each batch
@@ -131,7 +131,7 @@ class dataset():
 
     def load_dataset(self):
         '''
-        Load saved metadata after preprocessing
+        Load saved metadata after encoding
         '''
         try:
             features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
@@ -178,7 +178,7 @@ class dataset():
 # images_files = glob(osp.join(DATASET_PATH, 'Images', '*.jpg'))
 # data = dataset(src_path=DATASET_PATH, feature_path=FEATURE_PATH)
 # data.get_file_name()
-# # data.preprocess_dataset(entire_dataset=False)
+# # data.encode_dataset(entire_dataset=False)
 # # data.load_dataset()
 # print('Features: ', data.features)
 

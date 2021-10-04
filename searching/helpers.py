@@ -2,6 +2,7 @@ import torch
 import clip
 import cv2
 import sys
+import os
 import os.path as osp
 import matplotlib.pyplot as plt
 

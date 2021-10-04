@@ -14,7 +14,7 @@ class CLIP():
     def __init__(self, model_name='ViT-B/32'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model_name = model_name
-        self.model, self.preprocessor = clip.load(self.model_name, device=self.device)
+        self.model, self.encoder = clip.load(self.model_name, device=self.device)
 
     def encode_images(self, stacked_images: torch.Tensor) -> np.ndarray:
         with torch.no_grad():
@@ -67,20 +67,20 @@ class dataset():
 
     def compute_clip_features(self, image_batch: List[str]) -> np.ndarray:
         '''
-        With the model and preprocessor were loaded from the CLIP pretrained-model
+        With the model and encoder were loaded from the CLIP pretrained-model
         '''
         # Load all the images from the files
         images = [Image.open(image_file) for image_file in image_batch]
 
-        # Preprocess all images
-        images_preprocessed = torch.stack([self.clip_model.preprocessor(image) for image in images]).to(self.clip_model.device)
+        # Encode all images
+        images_encoded = torch.stack([self.clip_model.encoder(image) for image in images]).to(self.clip_model.device)
 
-        image_features = self.clip_model.encode_images(images_preprocessed)
+        image_features = self.clip_model.encode_images(images_encoded)
         return image_features
 
-    def preprocess_dataset(self, entire_dataset=True):
+    def encode_dataset(self, entire_dataset=True):
         '''
-        Preprocessing dataset:
+        Encoding dataset:
             - Load all images
             - comp
         '''
@@ -89,10 +89,10 @@ class dataset():
         
         # Compute how many batches are needed
         if entire_dataset:
-            print('Preprocess the whole dataset...')
+            print('encode the whole dataset...')
             batches = math.ceil(len(self.image_paths) / self.batch_size)
         else:
-            print('Preprocess a subset of the dataset...')
+            print('encode a subset of the dataset...')
             batches = 10
         
         # Process each batch
@@ -122,7 +122,7 @@ class dataset():
 
     def load_dataset(self):
         '''
-        Load saved metadata after preprocessing
+        Load saved metadata after encoding
         '''
         try:
             features_list = [np.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, "features", "*.npy")))]
@@ -168,7 +168,7 @@ data.get_file_name()
 # print(data.image_paths[:10])
 # print(data.image_names[:10])
 # print(len(data.image_paths))
-data.preprocess_dataset(entire_dataset=False)
+data.encode_dataset(entire_dataset=False)
 # data.load_dataset()
 # print("Features: ", len(data.features))
 
