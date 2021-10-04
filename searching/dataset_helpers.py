@@ -44,7 +44,7 @@ class dataset():
         self.features = {}
         # self.image_ids = None
         if dataset_name == 'Flicker-8k':
-            self.extension = os.path.join('Images', '*.jpg')
+            self.extension = osp.join('Images', '*.jpg')
         elif dataset_name == 'V3C1':
             self.extension = '*.png'
         else:
@@ -52,7 +52,7 @@ class dataset():
             pass
 
     def get_file_name(self):
-        self.image_names = sorted(glob(os.path.join(self.src_path, self.extension)))
+        self.image_names = sorted(glob(osp.join(self.src_path, self.extension)))
 
     def compute_clip_image_embeddings(self, image_batch: List[str]) -> np.ndarray:
         '''
@@ -112,10 +112,10 @@ class dataset():
         # Process each batch
         for i in tqdm(range(batches)):
         # for i in tqdm(range(10)):
-            embedding_filename = os.path.join(self.feature_path, f'{i:010d}.joblib')
+            embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
 
             # Only do the processing if the batch wasn't processed yet
-            if not os.path.isdir(embedding_filename):
+            if not osp.isdir(embedding_filename):
                 try:
                     # Select the images for the current batch
                     batch_files = self.image_names[i*self.batch_size : (i+1)*self.batch_size]
@@ -134,11 +134,11 @@ class dataset():
         Load saved metadata after preprocessing
         '''
         try:
-            features_list = [joblib.load(feature_file) for feature_file in sorted(glob(os.path.join(self.feature_path, '*.joblib')))]
+            features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
             for item in features_list:
                 self.features.update(item)
-            # features_list = [np.load(feature_file) for feature_file in sorted(glob(os.path.join(self.feature_path, 'features', '*.npy')))]
-            # image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(os.path.join(self.feature_path, 'ids', '*.csv')))]
+            # features_list = [np.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, 'features', '*.npy')))]
+            # image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(osp.join(self.feature_path, 'ids', '*.csv')))]
             # self.features = np.concatenate(features_list)
             # self.image_ids = pd.concat(image_ids_list)
         except:
@@ -169,13 +169,13 @@ class dataset():
         '''
         if image_list:
             try:
-                image_ids = [os.path.join(self.src_path, item['filename']) for item in image_list]
+                image_ids = [osp.join(self.src_path, item['filename']) for item in image_list]
                 plot_figure(image_ids, subplot_size=subplot_size)
             except:
                 print('Can\'t find best matched images.')
 
 
-# images_files = glob(os.path.join(DATASET_PATH, 'Images', '*.jpg'))
+# images_files = glob(osp.join(DATASET_PATH, 'Images', '*.jpg'))
 # data = dataset(src_path=DATASET_PATH, feature_path=FEATURE_PATH)
 # data.get_file_name()
 # # data.preprocess_dataset(entire_dataset=False)

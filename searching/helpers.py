@@ -2,7 +2,7 @@ import torch
 import clip
 import cv2
 import sys
-import os
+import os.path as osp
 import matplotlib.pyplot as plt
 
 from typing import List
@@ -67,7 +67,7 @@ def plot_figure(images, subplot_size=(5, 3), savefig=False, fig_name="", src_pat
         y.axes.get_yaxis().set_visible(False)
 
     if savefig:
-        fig.savefig(os.path.join(src_path, f'{fig_name}.png'))
+        fig.savefig(osp.join(src_path, f'{fig_name}.png'))
         
 def convert_to_concepts(string):
     name = string.split('/')[-1]

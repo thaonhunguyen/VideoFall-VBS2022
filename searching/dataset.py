@@ -44,7 +44,7 @@ class dataset():
         self.features = None
         self.image_ids = None
         if dataset_name == 'Flicker-8k':
-            self.extension = os.path.join('Images', '*.jpg')
+            self.extension = osp.join('Images', '*.jpg')
         elif dataset_name == 'V3C1':
             self.extension = '*.png'
         else:
@@ -52,7 +52,7 @@ class dataset():
             pass
 
     def get_file_name(self):
-        self.image_paths = sorted(glob(os.path.join(self.src_path, self.extension)))
+        self.image_paths = sorted(glob(osp.join(self.src_path, self.extension)))
         # self.image_names = [convert_to_concepts(image_path)['filename'] for image_path in self.image_paths]
 
     def find_dominant_colors(self, image_batch: List[str], cluster=5) -> defaultdict:
@@ -97,11 +97,11 @@ class dataset():
         
         # Process each batch
         for i in tqdm(range(batches)):
-            batch_ids_path = os.path.join(self.feature_path, "ids", f"{i:010d}.csv")
-            batch_features_path = os.path.join(self.feature_path, "features", f"{i:010d}.npy")
+            batch_ids_path = osp.join(self.feature_path, "ids", f"{i:010d}.csv")
+            batch_features_path = osp.join(self.feature_path, "features", f"{i:010d}.npy")
         
             # Only do the processing if the batch wasn't processed yet
-            if not os.path.isdir(batch_features_path):
+            if not osp.isdir(batch_features_path):
                 # try:
                 # Select the images for the current batch
                 batch_files = self.image_paths[i*self.batch_size : (i+1)*self.batch_size]
@@ -125,8 +125,8 @@ class dataset():
         Load saved metadata after preprocessing
         '''
         try:
-            features_list = [np.load(feature_file) for feature_file in sorted(glob(os.path.join(self.feature_path, "features", "*.npy")))]
-            image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(os.path.join(self.feature_path, "ids", "*.csv")))]
+            features_list = [np.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, "features", "*.npy")))]
+            image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(osp.join(self.feature_path, "ids", "*.csv")))]
             self.features = np.concatenate(features_list)
             self.image_ids = pd.concat(image_ids_list)
         except:
@@ -161,7 +161,7 @@ class dataset():
                 print("Can't find best matched images.")
 
 
-image_files = glob(os.path.join(DATASET_PATH, "*.png"))
+image_files = glob(osp.join(DATASET_PATH, "*.png"))
 # print(image_files)
 data = dataset(src_path=DATASET_PATH, feature_path=FEATURE_PATH)
 data.get_file_name()
