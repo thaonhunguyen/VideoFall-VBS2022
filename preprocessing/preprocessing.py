@@ -7,8 +7,8 @@ from glob import glob
 
 parser = argparse.ArgumentParser(description="VBS22 Interactive Video Search Engine")
 parser.add_argument('--src_path', '-src', type=str, default='/mnt/', help='Input source path where the dataset is stored')
-parser.add_argument('--des_path', '-des', type=str, default='/mnt/', help='Input destination path where you want to store new dataset')
-parser.add_argument('--scale', '-s', type=float, default=0.5, help='Input scale percentage that you want to resize the image (e.g. 0.5)')
+parser.add_argument('--des_path', '-des', type=str, default='/mnt/DEAKIN/VBS2022/resized_keyframes', help='Input destination path where you want to store new dataset')
+parser.add_argument('--scale', '-s', type=float, default=0.25, help='Input scale percentage that you want to resize the image (e.g. 0.5)')
 parser.add_argument('--imwrite_', '-i', type=bool, default=True)
 
 
@@ -31,15 +31,15 @@ def resize(img_path, scale=0.5, path=None, imwrite_=False):
     if imwrite_:
         cv2.imwrite(filename, output)
         
-def preprocessing(args):
-    filename_list = glob(args.src_path)
-    print(len(filename_list))
-    print("Preprocessing ...")
-    for filename in tqdm(filename_list[:10]):
-        print(filename)
+def processing(args):
+    filename_list = glob(osp.join(args.src_path, '*/*.png'))
+    print("Number of images to process: ", len(filename_list))
+    print("Processing ...")
+    for filename in tqdm(filename_list):
+        
         resize(filename, scale=args.scale, path=args.des_path, imwrite_=args.imwrite_)
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    preprocessing(args)
+    processing(args)
 #     print(args.src_path, args.des_path, args.scale, args.imwrite_)
