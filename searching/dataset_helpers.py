@@ -11,6 +11,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+# Define the CLIP encoding model class
 class CLIP():
     def __init__(self, model_name='ViT-B/32'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -18,6 +19,16 @@ class CLIP():
         self.model, self.encoder = clip.load(self.model_name, device=self.device)
 
     def encode_images(self, stacked_images: torch.Tensor) -> np.ndarray:
+        '''
+        Function to transform images in the dataset into feature vectors
+        
+        params:
+            - stacked_images: Tensor
+                A stack of images to encode
+
+        return:
+            - List of feature vectors of the images
+        ''' 
         with torch.no_grad():
             # Encode the images batch to compute the feature vectors and normalize them
             images_features = self.model.encode_image(stacked_images)
@@ -27,6 +38,16 @@ class CLIP():
         return images_features.cpu().numpy() 
 
     def encode_text_query(self, query:str) -> np.ndarray:
+        '''
+        Function to transform a text query string into vector
+        
+        params:
+            - query: string
+                An input string to encode
+        
+        return:
+            - A numerical array of encoded text string
+        '''
         with torch.no_grad():
             # Encode and normalize the description using CLIP
             text_encoded = self.model.encode_text(clip.tokenize(query).to(self.device))
@@ -35,13 +56,14 @@ class CLIP():
         return text_encoded
 
 class dataset():
-    def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16):
+    def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
         self.src_path = src_path
         self.feature_path = feature_path
         self.clip_model = CLIP()
         self.image_names = None
         self.batch_size = batch_size
         self.features = {}
+        self.generate_features = generate_features
         # self.image_ids = None
         if dataset_name == 'Flicker-8k':
             self.extension = osp.join('Images', '*.jpg')
@@ -52,6 +74,9 @@ class dataset():
             pass
 
     def get_file_name(self):
+        '''
+        Function to get a list of images' names from the source path in ascending order
+        '''
         self.image_names = sorted(glob(osp.join(self.src_path, self.extension)))
 
     def compute_clip_image_embeddings(self, image_batch: List[str]) -> np.ndarray:
@@ -115,7 +140,8 @@ class dataset():
             embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
 
             # Only do the processing if the batch wasn't processed yet
-            if not osp.isdir(embedding_filename):
+            # if not osp.isdir(embedding_filename):
+            if self.generate_features:
                 try:
                     # Select the images for the current batch
                     batch_files = self.image_names[i*self.batch_size : (i+1)*self.batch_size]
@@ -131,7 +157,7 @@ class dataset():
 
     def load_dataset(self):
         '''
-        Load saved metadata after encoding
+        Load saved metadata (extracted features) after encoding
         '''
         try:
             features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
@@ -145,6 +171,18 @@ class dataset():
             print('There is no existing feature files.')
 
     def search_query(self, query: str, num_matches=500) -> List:
+        '''
+        Function to search for target images giving an input query
+        
+        params:
+            - query: string
+                An input text query to search for the target images
+            - num_matches: integer, default=500
+                The number of images matching the query
+        
+        return:
+            - A list of matching images to the input query
+        '''
         if self.features is None:
             self.load_dataset()
 

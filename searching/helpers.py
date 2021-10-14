@@ -16,12 +16,6 @@ class DominantColors():
     '''
     Class of dominant colors of images
     '''
-    # CLUSTER = None
-    # IMAGE = None
-    # FLAT_IMAGE = None
-    # COLORS = None
-    # LABELS = None
-    
     def __init__(self, image, cluster=5):
         self.cluster = cluster
         self.image = image
@@ -55,7 +49,17 @@ class DominantColors():
         return self.colors
 
 
-def plot_figure(images, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
+def plot_figure(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
+    '''
+    Function to plot a list of images
+
+    params:
+        - images: List,
+            A list of images to visualize
+    
+    return:
+       - 
+    '''
     fig = plt.figure(figsize=(15, 15))
     max_len = min(len(images), subplot_size[0]*subplot_size[1])
 
@@ -70,7 +74,17 @@ def plot_figure(images, subplot_size=(5, 3), savefig=False, fig_name="", src_pat
     if savefig:
         fig.savefig(osp.join(src_path, f'{fig_name}.png'))
         
-def convert_to_concepts(string):
+def convert_to_concepts(image_name: str):
+    '''
+    Function to convert a string into the concepts having the detail of each image
+    
+    params:
+        - name: type, default=
+            description
+    
+    return:
+       - 
+    '''
     name = string.split('/')[-1]
     components = name.split('_')
     dataset = None
