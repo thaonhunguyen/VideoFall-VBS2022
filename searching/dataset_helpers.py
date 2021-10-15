@@ -138,21 +138,21 @@ class dataset():
         for i in tqdm(range(batches)):
         # for i in tqdm(range(10)):
             embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
-
+            print(i)
             # Only do the processing if the batch wasn't processed yet
             # if not osp.isdir(embedding_filename):
-            if self.generate_features:
-                try:
-                    # Select the images for the current batch
-                    batch_files = self.image_names[i*self.batch_size : (i+1)*self.batch_size]
+#             if self.generate_features:
+#                 try:
+#                     # Select the images for the current batch
+#                     batch_files = self.image_names[i*self.batch_size : (i+1)*self.batch_size]
 
-                    # Compute the features and save to a joblib file
-                    batch_embeddings = self.compute_clip_image_embeddings(batch_files)
-                    joblib.dump(batch_embeddings, embedding_filename)
+#                     # Compute the features and save to a joblib file
+#                     batch_embeddings = self.compute_clip_image_embeddings(batch_files)
+#                     joblib.dump(batch_embeddings, embedding_filename)
 
-                except:
-                    # Catch problems with the processing to make the process more robust
-                    print(f'Problem with batch {i}')
+#                 except:
+#                     # Catch problems with the processing to make the process more robust
+#                     print(f'Problem with batch {i}')
 
 
     def load_dataset(self):
