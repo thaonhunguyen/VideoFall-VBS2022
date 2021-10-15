@@ -15,7 +15,7 @@ def main(args):
     # print("Features: ", data.features)
     print("Dataset name: ", DATASET_NAME)
     clip = CLIPSearchEngine(src_path=DATASET_PATH, feature_path=FEATURE_PATH, generate_features=args.generate_features)
-    clip.encode_dataset(entire_dataset=True)
+    clip.encode_dataset(entire_dataset=False)
     pass
 
 if __name__ == '__main__':
