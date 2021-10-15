@@ -85,13 +85,13 @@ def convert_to_concepts(image_name: str):
     return:
        - 
     '''
-    name = string.split('/')[-1]
+    name = image_name.split('/')[-1]
     components = name.split('_')
     dataset = None
 #     dataset = components[-4]
     video = components[-3][4:]
     shot = components[-2]
-    return {'path': string,
+    return {'path': image_name,
             'filename': name,
             'dataset': dataset,
             'video': video,
