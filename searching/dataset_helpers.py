@@ -157,9 +157,14 @@ class CLIPSearchEngine():
         Load saved metadata (extracted features) after encoding
         '''
         try:
-            features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
-            for item in features_list:
-                self.features.update(item)
+            print("Loading feature files ...")
+            feature_list  = sorted(glob(osp.join(self.feature_path, '*.joblib')))
+            for feature_file in tqdm(feature_list):
+                feature = joblib.load(feature_file)
+                self.features.update(feature)
+#             features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
+#             for item in features_list:
+#                 self.features.update(item)
             # features_list = [np.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, 'features', '*.npy')))]
             # image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(osp.join(self.feature_path, 'ids', '*.csv')))]
             # self.features = np.concatenate(features_list)
