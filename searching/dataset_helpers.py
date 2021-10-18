@@ -171,16 +171,17 @@ class CLIPSearchEngine():
             del temp
         except:
             print('There is no existing feature files.')
-
-    def search_query(self, query: str, num_matches=500, ss_type='faiss') -> List:
+            
+    def search(self, input_vector, num_matches=500, nlist=10, ss_type='faiss') -> List:
         '''
         Function to search for target images giving an input query
         
         params:
-            - query: string
-                An input text query to search for the target images
+            - input_vector: ndarray
+                An input vector to calculate the similarities
             - num_matches: integer, default=500
-                The number of images matching the query
+                The number of vectors matching the query
+            - 
         
         return:
             - A list of matching images to the input query
@@ -188,27 +189,57 @@ class CLIPSearchEngine():
         if self.features is None:
             self.load_features()
 
-        text_encoded = self.clip_model.encode_text_query(query)
-    
-        # Retrieve the description vector and the image vectors
-        text_features = text_encoded.cpu().numpy().astype('float32')
-#         temp = self.feature_dict.values()
-#         features = np.asarray([*temp])
-        
         if ss_type == 'faiss':
-            dimension = features.shape[1]
-            nlist = 10
+            dimension = self.features.shape[1]
+            # Initialize faiss searching object
             quantiser = faiss.IndexFlatL2(dimension)  
-            index = faiss.IndexIVFFlat(quantiser, dimension, nlist,   faiss.METRIC_L2)
-            pass
+            index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
+            index.train(self.features) 
+            index.add(self.features)  
+            # Calculate the distances of the text vectors 
+            distances, indices = index.search(input_vector, num_matches)
+            best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
         else:
             # Compute the similarity between the description and each image using the Cosine similarity
-            similarities = list((text_features @ self.features.T).squeeze(0))
-
+            similarities = list((input_vector @ self.features.T).squeeze(0))
             # Sort the images by their similarity scores
-            best_matched_images = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
-            best_matched_image_names = [self.dataset.image_names[item[1]] for item in best_matched_images]
-            result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
+            indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
+            best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
+            
+        result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
+        return result
+        
+        
+        
+    def search_query(self, query: str, is_string: bool, num_matches=500, nlist=10, ss_type='faiss') -> List:
+        '''
+        Function to search for target images giving an input query
+        
+        params:
+            - query: str
+                An input text query to search for the target images
+            - is_strionmg: bool,
+                Whether the input query is a string or the name of image
+            - num_matches: integer, default=500
+                The number of images matching the query
+        
+        return:
+            - A list of matching images to the input query
+        '''
+#         if self.features is None:
+#             self.load_features()
+        if is_string:
+            # Encode the string query into the latent space
+            text_encoded = self.clip_model.encode_text_query(query)
+            feature_vector = text_encoded.cpu().numpy().astype('float32')
+        else:
+            feature = self.feature_dict[query]
+            feature = np.expand_dims(feature, axis=0)
+            feature_vector = feature.astype('float32')
+
+        result = self.search(feature_vector, num_matches, nlist, ss_type)
+        
+
         return result
 
     
