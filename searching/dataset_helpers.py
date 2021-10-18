@@ -71,13 +71,15 @@ class dataset():
         '''
         Function to get a list of images' names from the source path in ascending order
         '''
+#         self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
         self.image_names = sorted(glob(osp.join(self.src_path, self.extension)))
 
 class CLIPSearchEngine():
     def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
         self.dataset = dataset(dataset_name=dataset_name, src_path=src_path)
         self.clip_model = CLIP()
-        self.features = {}
+        self.feature_dict = {}
+        self.features = None
         self.feature_path = feature_path
         self.batch_size = batch_size
         self.generate_features = generate_features
@@ -95,7 +97,7 @@ class CLIPSearchEngine():
                 image embedding vectors
         '''
         # Sort the file name of all images in batch by
-        image_batch = sorted(image_batch)
+        image_batch = sort_list(image_batch)
         image_embeddings_dict = defaultdict(list)
 
         # Load all the images from the files
@@ -158,17 +160,13 @@ class CLIPSearchEngine():
         '''
         try:
             print("Loading feature files ...")
-            feature_list  = sorted(glob(osp.join(self.feature_path, '*.joblib')))
+            feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
             for feature_file in tqdm(feature_list):
                 feature = joblib.load(feature_file)
-                self.features.update(feature)
-#             features_list = [joblib.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, '*.joblib')))]
-#             for item in features_list:
-#                 self.features.update(item)
-            # features_list = [np.load(feature_file) for feature_file in sorted(glob(osp.join(self.feature_path, 'features', '*.npy')))]
-            # image_ids_list = [pd.read_csv(id_file) for id_file in sorted(glob(osp.join(self.feature_path, 'ids', '*.csv')))]
-            # self.features = np.concatenate(features_list)
-            # self.image_ids = pd.concat(image_ids_list)
+                self.feature_dict.update(feature)
+            temp = self.feature_dict.values()
+            self.features = np.asarray([*temp]).astype('float32')
+            del temp
         except:
             print('There is no existing feature files.')
 
@@ -185,15 +183,15 @@ class CLIPSearchEngine():
         return:
             - A list of matching images to the input query
         '''
-        if self.features is None:
+        if self.feature_dict is None:
             self.load_features()
 
         text_encoded = self.clip_model.encode_text_query(query)
     
         # Retrieve the description vector and the image vectors
-        text_features = text_encoded.cpu().numpy()
-        temp = self.features.values()
-        features = np.asarray([*temp])
+        text_features = text_encoded.cpu().numpy().astype('float32')
+#         temp = self.feature_dict.values()
+#         features = np.asarray([*temp])
 
         # Compute the similarity between the description and each image using the Cosine similarity
         similarities = list((text_features @ features.T).squeeze(0))
@@ -212,7 +210,7 @@ class CLIPSearchEngine():
         if image_list:
             try:
                 image_ids = [osp.join(self.dataset.src_path, item['filename']) for item in image_list]
-                plot_figure(image_ids, subplot_size=subplot_size)
+                plot_figures(image_ids, subplot_size=subplot_size)
             except:
                 print('Can\'t find best matched images.')
 

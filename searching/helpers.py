@@ -2,6 +2,7 @@ import torch
 import clip
 import cv2
 import sys
+import re 
 import os
 import os.path as osp
 import matplotlib.pyplot as plt
@@ -49,7 +50,17 @@ class DominantColors():
         return self.colors
 
 
-def plot_figure(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
+
+def sort_list(input_list):
+    input_list.sort(key=natural_keys)
+    return input_list
+
+def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
     '''
     Function to plot a list of images
 
