@@ -8,6 +8,7 @@ import torch
 import clip
 import math
 import joblib
+import faiss
 import numpy as np
 import pandas as pd
 
@@ -164,13 +165,14 @@ class CLIPSearchEngine():
             for feature_file in tqdm(feature_list):
                 feature = joblib.load(feature_file)
                 self.feature_dict.update(feature)
+                del feature
             temp = self.feature_dict.values()
             self.features = np.asarray([*temp]).astype('float32')
             del temp
         except:
             print('There is no existing feature files.')
 
-    def search_query(self, query: str, num_matches=500) -> List:
+    def search_query(self, query: str, num_matches=500, ss_type='faiss') -> List:
         '''
         Function to search for target images giving an input query
         
@@ -183,7 +185,7 @@ class CLIPSearchEngine():
         return:
             - A list of matching images to the input query
         '''
-        if self.feature_dict is None:
+        if self.features is None:
             self.load_features()
 
         text_encoded = self.clip_model.encode_text_query(query)
@@ -192,14 +194,21 @@ class CLIPSearchEngine():
         text_features = text_encoded.cpu().numpy().astype('float32')
 #         temp = self.feature_dict.values()
 #         features = np.asarray([*temp])
+        
+        if ss_type == 'faiss':
+            dimension = features.shape[1]
+            nlist = 10
+            quantiser = faiss.IndexFlatL2(dimension)  
+            index = faiss.IndexIVFFlat(quantiser, dimension, nlist,   faiss.METRIC_L2)
+            pass
+        else:
+            # Compute the similarity between the description and each image using the Cosine similarity
+            similarities = list((text_features @ self.features.T).squeeze(0))
 
-        # Compute the similarity between the description and each image using the Cosine similarity
-        similarities = list((text_features @ features.T).squeeze(0))
-
-        # Sort the images by their similarity scores
-        best_matched_images = sorted(zip(similarities, range(features.shape[0])), key=lambda x: x[0], reverse=True)
-        best_matched_image_names = [self.dataset.image_names[item[1]] for item in best_matched_images]
-        result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
+            # Sort the images by their similarity scores
+            best_matched_images = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
+            best_matched_image_names = [self.dataset.image_names[item[1]] for item in best_matched_images]
+            result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
         return result
 
     
