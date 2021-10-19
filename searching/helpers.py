@@ -57,6 +57,12 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 def sort_list(input_list):
+    '''
+    Function to convert an input list into a list in ascending order based on natual keys
+
+    params:
+        - input_list: Listß
+    '''
     input_list.sort(key=natural_keys)
     return input_list
 

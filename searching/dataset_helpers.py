@@ -73,7 +73,7 @@ class dataset():
         Function to get a list of images' names from the source path in ascending order
         '''
 #         self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
-        self.image_names = sorted(glob(osp.join(self.src_path, self.extension)))
+        self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
 
 class CLIPSearchEngine():
     def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
@@ -145,15 +145,14 @@ class CLIPSearchEngine():
         # for i in tqdm(range(10)):
             embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
             if self.generate_features:
-                # try:
-                # Select the images for the current batch
-                batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
-
-                # Compute the features and save to a joblib file
-                batch_embeddings = self.compute_clip_image_embeddings(batch_files)
-                joblib.dump(batch_embeddings, embedding_filename)
-                # except:
-                #     print(f"Problem with batch {i}.")
+                try:
+                    # Select the images for the current batch
+                    batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
+                    # Compute the features and save to a joblib file
+                    batch_embeddings = self.compute_clip_image_embeddings(batch_files)
+                    joblib.dump(batch_embeddings, embedding_filename)
+                except:
+                    print(f"Problem with batch {i}.")
 
     def load_features(self):
         '''
@@ -172,44 +171,67 @@ class CLIPSearchEngine():
         except:
             print('There is no existing feature files.')
             
-    def search(self, input_vector, num_matches=500, nlist=10, ss_type='faiss') -> List:
+#     def search(self, input_vector, num_matches=500, nlist=10, ss_type='faiss') -> List:
+#         '''
+#         Function to search for target images giving an input query
+        
+#         params:
+#             - input_vector: ndarray
+#                 An input vector to calculate the similarities
+#             - num_matches: integer, default=500
+#                 The number of vectors matching the query
+#             - 
+        
+#         return:
+#             - A list of matching images to the input query
+#         '''
+#         if self.features is None:
+#             self.load_features()
+
+#         if ss_type == 'faiss':
+#             dimension = self.features.shape[1]
+#             # Initialize faiss searching object
+#             quantiser = faiss.IndexFlatL2(dimension)  
+#             index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
+#             index.train(self.features) 
+#             index.add(self.features)  
+#             # Calculate the distances of the text vectors 
+#             distances, indices = index.search(input_vector, num_matches)
+#             best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
+#         else:
+#             # Compute the similarity between the description and each image using the Cosine similarity
+#             similarities = list((input_vector @ self.features.T).squeeze(0))
+#             # Sort the images by their similarity scores
+#             indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
+#             best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
+            
+#         result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
+#         return result
+        
+    def encode_input_query(self, query: str, is_string: bool) -> np.array:
         '''
-        Function to search for target images giving an input query
+        Function to encode an input query into feature vector
         
         params:
-            - input_vector: ndarray
-                An input vector to calculate the similarities
-            - num_matches: integer, default=500
-                The number of vectors matching the query
-            - 
-        
+            - query: str
+                An input text query to search for the target images
+            - is_strionmg: bool,
+                Whether the input query is a string or the name of image
+                
         return:
-            - A list of matching images to the input query
+            - feature_vector: array
+                An embedded feature vector with shape (len, 1)
         '''
-        if self.features is None:
-            self.load_features()
-
-        if ss_type == 'faiss':
-            dimension = self.features.shape[1]
-            # Initialize faiss searching object
-            quantiser = faiss.IndexFlatL2(dimension)  
-            index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
-            index.train(self.features) 
-            index.add(self.features)  
-            # Calculate the distances of the text vectors 
-            distances, indices = index.search(input_vector, num_matches)
-            best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
+        if is_string:
+            # Encode the string query into the latent space
+            str_feature = self.clip_model.encode_text_query(query)
+            feature_vector = str_feature.cpu().numpy().astype('float32')
         else:
-            # Compute the similarity between the description and each image using the Cosine similarity
-            similarities = list((input_vector @ self.features.T).squeeze(0))
-            # Sort the images by their similarity scores
-            indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
-            best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
-            
-        result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
-        return result
+            feature_vec = self.feature_dict[query]
+            feature_vec = np.expand_dims(feature, axis=0)
+            feature_vector = feature.astype('float32')
         
-        
+        return feature_vector
         
     def search_query(self, query: str, is_string: bool, num_matches=500, nlist=10, ss_type='faiss') -> List:
         '''
@@ -226,22 +248,31 @@ class CLIPSearchEngine():
         return:
             - A list of matching images to the input query
         '''
-#         if self.features is None:
-#             self.load_features()
-        if is_string:
-            # Encode the string query into the latent space
-            text_encoded = self.clip_model.encode_text_query(query)
-            feature_vector = text_encoded.cpu().numpy().astype('float32')
-        else:
-            feature = self.feature_dict[query]
-            feature = np.expand_dims(feature, axis=0)
-            feature_vector = feature.astype('float32')
+        if self.features is None:
+            self.load_features()
 
-        result = self.search(feature_vector, num_matches, nlist, ss_type)
+        # Encode the input query into feature vector
+        feature_vector = self.encode_input_query(query, is_string=True)
         
-
+        if ss_type == 'faiss':
+            dimension = self.features.shape[1]
+            # Initialize faiss searching object
+            quantiser = faiss.IndexFlatL2(dimension)  
+            index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
+            index.train(self.features) 
+            index.add(self.features)  
+            # Calculate the distances of the text vectors 
+            distances, indices = index.search(feature_vector, num_matches)
+            best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
+        else:
+            # Compute the similarity between the description and each image using the Cosine similarity
+            similarities = list((feature_vector @ self.features.T).squeeze(0))
+            # Sort the images by their similarity scores
+            indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
+            best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
+            
+        result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
         return result
-
     
     def display_results(self, image_list=None, subplot_size=(5, 3)):
         '''
