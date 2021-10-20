@@ -1,7 +1,7 @@
 import cv2
 import os.path as osp
 import argparse
-
+import joblib
 from tqdm import tqdm
 from glob import glob
 
@@ -12,7 +12,7 @@ parser.add_argument('--scale', '-s', type=float, default=0.25, help='Input scale
 parser.add_argument('--imwrite_', '-i', default=True)
 
 
-def resize(img_path, scale=0.5, path=None, imwrite_=False):
+def resize(img_path, scale=0.5, path=None, imwrite_=True):
     src = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
     #calculate the 50 percent of original dimensions
@@ -32,7 +32,8 @@ def resize(img_path, scale=0.5, path=None, imwrite_=False):
         cv2.imwrite(filename, output)
         
 def processing(args):
-    filename_list = glob(osp.join(args.src_path, '*/*.png'))
+#     filename_list = glob(osp.join(args.src_path, '*/*.png'))
+    filename_list = joblib.load('V3C2_diff.joblib')
     print("Number of images to process: ", len(filename_list))
     print("Processing ...")
     for filename in tqdm(filename_list):
@@ -40,5 +41,6 @@ def processing(args):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    print(args.imwrite_)
     processing(args)
 #     print(args.src_path, args.des_path, args.scale, args.imwrite_)
