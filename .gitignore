@@ -2,5 +2,6 @@ results/
 .ipynb_checkpoints/
 __pycache__/
 
+**/lsc.ipynb
 **/*.joblib
 **/*.sh

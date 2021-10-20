@@ -6,36 +6,36 @@ import argparse
 # parser = argparse.ArgumentParser(description='Input ')
 
 # dataset_name = 'Flickr-8k'
-dataset_name = 'V3C1'
+dataset_name = 'LSC'
 
-if dataset_name == 'Flickr-8k':
+if dataset_name == 'LSC':
     DATASET_NAME = dataset_name
-    VBS_MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
-    DATASET_MASTER_PATH = '/home/ntnhu/projects/object_detection'
+    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
+#     DATASET_MASTER_PATH = '/home/ntnhu/projects/object_detection'
 
-    DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'dataset', DATASET_NAME)
-    FEATURE_PATH = os.path.join(VBS_MASTER_PATH, 'results', f'{DATASET_NAME}-features')
+    DATASET_PATH = '/mnt/DEAKIN/lsc2020' 
+    FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)
 
 elif dataset_name == 'V3C1':
     DATASET_NAME = dataset_name
-    VBS_MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
+    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
     # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
     DATASET_MASTER_PATH = '/mnt/SEAGATE/root/V3C1'
 
     DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'resized_keyframes')
-    FEATURE_PATH = os.path.join(VBS_MASTER_PATH, 'results', f'{DATASET_NAME}-features')
+    FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)
         
 elif dataset_name == 'V3C':
     DATASET_NAME = dataset_name
-    VBS_MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
+    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
     # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
     DATASET_MASTER_PATH = '/mnt/DEAKIN/VBS2022'
 
     DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'resized_keyframes')
-    FEATURE_PATH = os.path.join(VBS_MASTER_PATH, 'results', f'{DATASET_NAME}-features')
+    FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)

@@ -62,8 +62,8 @@ class dataset():
         self.image_names = None
         if dataset_name == 'Flicker-8k':
             self.extension = osp.join('Images', '*.jpg')
-#         elif dataset_name == 'V3C1':
-#             self.extension = '*.png'
+        elif dataset_name == 'LSC':
+            self.extension = osp.join('*', '*.jpg')
         else:
             self.extension = '*.png'
             pass
