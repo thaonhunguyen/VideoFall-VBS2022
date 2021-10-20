@@ -66,6 +66,12 @@ def sort_list(input_list):
     input_list.sort(key=natural_keys)
     return input_list
 
+def is_image(input_string):
+    extension = input_string.split('.')[-1]
+    if extension == 'png' or extension == 'jpg' or extension == 'jpeg':
+        return True
+    return False
+
 def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
     '''
     Function to plot a list of images

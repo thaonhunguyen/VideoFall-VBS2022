@@ -28,3 +28,14 @@ elif dataset_name == 'V3C1':
     FEATURE_PATH = os.path.join(VBS_MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)
+        
+elif dataset_name == 'V3C':
+    DATASET_NAME = dataset_name
+    VBS_MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
+    # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
+    DATASET_MASTER_PATH = '/mnt/DEAKIN/VBS2022'
+
+    DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'resized_keyframes')
+    FEATURE_PATH = os.path.join(VBS_MASTER_PATH, 'results', f'{DATASET_NAME}-features')
+    if not os.path.isdir(FEATURE_PATH):
+        os.mkdir(FEATURE_PATH)

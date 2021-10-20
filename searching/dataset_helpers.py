@@ -62,16 +62,17 @@ class dataset():
         self.image_names = None
         if dataset_name == 'Flicker-8k':
             self.extension = osp.join('Images', '*.jpg')
-        elif dataset_name == 'V3C1':
-            self.extension = '*.png'
+#         elif dataset_name == 'V3C1':
+#             self.extension = '*.png'
         else:
-            # Insert extension of other dataset to here
+            self.extension = '*.png'
             pass
 
     def get_file_name(self):
         '''
         Function to get a list of images' names from the source path in ascending order
         '''
+        print("Getting all image names from the source path ...")
         self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
 
 class CLIPSearchEngine():
@@ -174,40 +175,36 @@ class CLIPSearchEngine():
         except:
             print('There is no existing feature files.')
             
-    def encode_input_query(self, query: str, is_string: bool) -> np.array:
+    def encode_input_query(self, query: str) -> np.array:
         '''
         Function to encode an input query into feature vector
         
         params:
             - query: str
                 An input text query to search for the target images
-            - is_strionmg: bool,
-                Whether the input query is a string or the name of image
                 
         return:
             - feature_vector: array
                 An embedded feature vector with shape (len, 1)
         '''
-        if is_string:
-            # Encode the string query into the latent space
-            str_feature = self.clip_model.encode_text_query(query)
-            feature_vector = str_feature.cpu().numpy().astype('float32')
-        else:
+        if is_image(query):
             feature_vec = self.feature_dict[query]
             feature_vec = np.expand_dims(feature, axis=0)
             feature_vector = feature.astype('float32')
+        else:
+            # Encode the string query into the latent space
+            str_feature = self.clip_model.encode_text_query(query)
+            feature_vector = str_feature.cpu().numpy().astype('float32')
         
         return feature_vector
         
-    def search_query(self, query: str, is_string: bool, num_matches=500, nlist=10, ss_type='faiss') -> List:
+    def search_query(self, query: str, num_matches=500, nlist=10, ss_type='faiss') -> List:
         '''
         Function to search for target images giving an input query
         
         params:
             - query: str
                 An input text query to search for the target images
-            - is_strionmg: bool,
-                Whether the input query is a string or the name of image
             - num_matches: integer, default=500
                 The number of images matching the query
         
@@ -218,7 +215,7 @@ class CLIPSearchEngine():
             self.load_features()
 
         # Encode the input query into feature vector
-        feature_vector = self.encode_input_query(query, is_string=True)
+        feature_vector = self.encode_input_query(query)
         
         if ss_type == 'faiss':
             dimension = self.features.shape[1]
@@ -242,7 +239,13 @@ class CLIPSearchEngine():
     
     def display_results(self, image_list=None, subplot_size=(5, 3)):
         '''
-        Display images from the top most matches list
+        Visualize images from the top most similar image list
+        
+        params:
+            - image_list: List, default=None
+                An input image list to display
+            - subplot_size: tuple, default=(5, 3)
+                The size of the plot to visualize
         '''
         if image_list:
             try:
