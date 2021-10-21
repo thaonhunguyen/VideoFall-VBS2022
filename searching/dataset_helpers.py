@@ -77,7 +77,8 @@ class dataset():
 
 class CLIPSearchEngine():
     def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
-        self.dataset = dataset(dataset_name=dataset_name, src_path=src_path)
+        self.dataset_name = dataset_name
+        self.dataset = dataset(dataset_name=self.dataset_name, src_path=src_path)
         self.clip_model = CLIP()
         self.feature_dict = {}
         self.features = None
@@ -100,11 +101,9 @@ class CLIPSearchEngine():
         # Sort the file name of all images in batch by
         image_batch = sort_list(image_batch)
         image_embeddings_dict = defaultdict(list)
-
-        # Load all the images from the files
+        # Load all the images from the files          
         images = [Image.open(image_file) for image_file in image_batch]
-        filenames = [convert_to_concepts(image_file)['filename'] for image_file in image_batch]
-        
+        filenames = [convert_to_concepts(image_file, dataset_name=self.dataset_name)['filename'] for image_file in image_batch]
         # Encode all images
         images_encoded = torch.stack([self.clip_model.encoder(image) for image in images]).to(self.clip_model.device)
         image_embeddings = self.clip_model.encode_images(images_encoded)
@@ -113,7 +112,7 @@ class CLIPSearchEngine():
         for idx in range(len(image_batch)):
             image_embeddings_dict[filenames[idx]] = image_embeddings[idx]
 
-        return image_embeddings_dict
+        return images_embeddings_dict
 
     def encode_dataset(self, entire_dataset=True):
         '''
@@ -146,14 +145,14 @@ class CLIPSearchEngine():
             for i in tqdm(range(batches)):
             # for i in tqdm(range(10)):
                 embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
-                try:
-                    # Select the images for the current batch
-                    batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
-                    # Compute the features and save to a joblib file
-                    batch_embeddings = self.compute_clip_image_embeddings(batch_files)
-                    joblib.dump(batch_embeddings, embedding_filename)
-                except:
-                    print(f"Problem with batch {i}.")
+#                 try:
+                # Select the images for the current batch
+                batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
+                # Compute the features and save to a joblib file
+                batch_embeddings = self.compute_clip_image_embeddings(batch_files)
+                joblib.dump(batch_embeddings, embedding_filename)
+#                 except:
+#                     print(f"Problem with batch {i}.")
         else:
             print("Load extracted features ...")
             self.load_features()
@@ -234,7 +233,7 @@ class CLIPSearchEngine():
             indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
             best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
             
-        result = [convert_to_concepts(item) for item in best_matched_image_names[:num_matches]]
+        result = [convert_to_concepts(item, dataset_name=self.dataset_name) for item in best_matched_image_names[:num_matches]]
         return result
     
     def display_results(self, image_list=None, subplot_size=(5, 3)):

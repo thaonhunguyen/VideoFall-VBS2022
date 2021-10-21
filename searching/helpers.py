@@ -97,9 +97,10 @@ def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", 
     if savefig:
         fig.savefig(osp.join(src_path, f'{fig_name}.png'))
         
-def convert_to_concepts(image_name: str):
+        
+def convert_to_concepts(image_name: str, dataset_name: str):
     '''
-    Function to convert a string into the concepts having the detail of each image
+    Function to convert a string into the concepts having the detail of each image in VBS dataset
     
     params:
         - name: type, default=
@@ -108,18 +109,20 @@ def convert_to_concepts(image_name: str):
     return:
        - 
     '''
-    name = image_name.split('/')[-1]
-    components = name.split('_')
-    dataset = None
-#     dataset = components[-4]
-    video = components[-3][4:]
-    shot = components[-2]
-    return {'path': image_name,
-            'filename': name,
-            'dataset': dataset,
-            'video': video,
-            'shot': shot}
-
+    if dataset_name == 'LSC':
+        name = image_name.split('/')[-1]
+        date = image_name.split('/')[-2]
+        time = name.split('_')[-2]
+        concepts = {'path': image_name, 'filename': name, 'date': date, 'time': time}
+    elif dataset_name == 'V3C1' or dataset_name == 'V3C':
+        name = image_name.split('/')[-1]
+        components = name.split('_')
+        dataset = None
+        video = components[-3][4:]
+        shot = components[-2]
+        concepts = {'path': image_name, 'filename': name, 'dataset': dataset, 'video': video, 'shot': shot}
+    return concepts
+        
 
 # img = '../filtering/google.jpeg'
 # img = cv2.imread(img)

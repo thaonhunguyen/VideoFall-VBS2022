@@ -5,15 +5,15 @@ import argparse
 
 # parser = argparse.ArgumentParser(description='Input ')
 
-# dataset_name = 'Flickr-8k'
-dataset_name = 'LSC'
+dataset_name = 'V3C1'
+# dataset_name = 'LSC'
 
 if dataset_name == 'LSC':
     DATASET_NAME = dataset_name
     MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
 #     DATASET_MASTER_PATH = '/home/ntnhu/projects/object_detection'
 
-    DATASET_PATH = '/mnt/DEAKIN/lsc2020' 
+    DATASET_PATH = '/mnt/data/lsc2020' 
     FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)
