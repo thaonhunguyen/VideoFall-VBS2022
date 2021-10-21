@@ -1,4 +1,5 @@
 results/
+preprocessing/
 .ipynb_checkpoints/
 __pycache__/
 
