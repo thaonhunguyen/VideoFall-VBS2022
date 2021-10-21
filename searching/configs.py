@@ -5,8 +5,8 @@ import argparse
 
 # parser = argparse.ArgumentParser(description='Input ')
 
-dataset_name = 'V3C1'
-# dataset_name = 'LSC'
+# dataset_name = 'V3C1'
+dataset_name = 'LSC'
 
 if dataset_name == 'LSC':
     DATASET_NAME = dataset_name
