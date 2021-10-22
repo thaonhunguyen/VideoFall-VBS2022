@@ -110,10 +110,12 @@ def convert_to_concepts(image_name: str, dataset_name: str):
        - 
     '''
     if dataset_name == 'LSC':
-        name = image_name.split('/')[-1]
-        date = image_name.split('/')[-2]
-        time = name.split('_')[-2]
-        concepts = {'path': image_name, 'filename': name, 'date': date, 'time': time}
+        filename = image_name.split('/')[-2:]
+        name = osp.join(filename[0], filename[1])
+#         name = image_name.split('/')[-1]
+        date = filename[0]
+#         time = name.split('_')[-2]
+        concepts = {'path': image_name, 'filename': name, 'date': date}
     elif dataset_name == 'V3C1' or dataset_name == 'V3C':
         name = image_name.split('/')[-1]
         components = name.split('_')
