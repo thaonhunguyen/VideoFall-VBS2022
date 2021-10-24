@@ -14,6 +14,7 @@ if dataset_name == 'LSC':
 #     DATASET_MASTER_PATH = '/home/ntnhu/projects/object_detection'
 
     DATASET_PATH = '/mnt/data/lsc2020' 
+    error_image_file = '/home/ntnhu/projects/LSC2021/LSC_clip_model/error_images.joblib'
     FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)

@@ -68,7 +68,7 @@ def sort_list(input_list):
 
 def is_image(input_string):
     extension = input_string.split('.')[-1]
-    if extension == 'png' or extension == 'jpg' or extension == 'jpeg':
+    if extension == 'png' or extension == 'jpg' or extension == 'jpeg' or extension == 'JPG':
         return True
     return False
 
