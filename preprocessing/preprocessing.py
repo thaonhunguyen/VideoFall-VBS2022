@@ -36,8 +36,14 @@ def processing(args):
     filename_list = joblib.load('V3C2_diff.joblib')
     print("Number of images to process: ", len(filename_list))
     print("Processing ...")
-    for filename in tqdm(filename_list):
-        resize(filename, scale=args.scale, path=args.des_path, imwrite_=args.imwrite_)
+    for filename in tqdm(filename_list[:10]):
+        print(filename)
+        video_name = filename.split('/')[-1][4:9]
+        video_path = osp.join('/mnt/DEAKIN/VBS2022/keyframes/', video_name)
+        if not osp.isdir(video_path):
+            os.mkdir(video_path)
+#     for filename in tqdm(filename_list):
+        resize(filename, scale=args.scale, path=video_path, imwrite_=args.imwrite_)
 
 if __name__ == '__main__':
     args = parser.parse_args()

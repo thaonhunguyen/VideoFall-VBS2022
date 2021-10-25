@@ -76,7 +76,7 @@ class dataset():
         if dataset_name == 'LSC':
             self.image_names = []
             folder_names = os.listdir(DATASET_PATH)
-            for folder in folder_names:
+            for folder in tqdm(folder_names):
                 folder_path = osp.join(DATASET_PATH, folder)
                 filenames = os.listdir(folder_path)
                 self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
