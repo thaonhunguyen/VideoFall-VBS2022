@@ -6,7 +6,7 @@ import argparse
 # parser = argparse.ArgumentParser(description='Input ')
 
 # dataset_name = 'V3C1'
-dataset_name = 'LSC'
+dataset_name = 'V3C'
 
 if dataset_name == 'LSC':
     DATASET_NAME = dataset_name
@@ -36,7 +36,7 @@ elif dataset_name == 'V3C':
     # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
     DATASET_MASTER_PATH = '/mnt/DEAKIN/VBS2022'
 
-    DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'resized_keyframes')
-    FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'{DATASET_NAME}-features')
+    DATASET_PATH = os.path.join(DATASET_MASTER_PATH, 'keyframes')
+    FEATURE_PATH = os.path.join(MASTER_PATH, 'results', f'full-{DATASET_NAME}-features')
     if not os.path.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)

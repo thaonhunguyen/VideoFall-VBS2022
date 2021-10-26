@@ -85,7 +85,13 @@ class dataset():
             for image in error_image_list:
                 self.image_names.remove(image)
         else:
-            self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
+            self.image_names = []
+            folder_names = os.listdir(DATASET_PATH)
+            for folder in tqdm(folder_names):
+                folder_path = osp.join(DATASET_PATH, folder)
+                filenames = os.listdir(folder_path)
+                self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
+#             self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
 #         error_image_list=['/mnt/DEAKIN/lsc2020/2016-08-18/20160818_142810_000.jpg',
 #                           '/mnt/DEAKIN/lsc2020/2016-08-31/20160831_083535_000.jpg',
 #                           '/mnt/DEAKIN/lsc2020/2016-09-01/20160901_120054_000.jpg',
