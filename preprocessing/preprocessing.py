@@ -34,7 +34,7 @@ def resize(img_path, scale=0.5, path=None, imwrite_=True):
         
 def processing(args):
 #     filename_list = glob(osp.join(args.src_path, '*/*.png'))
-    filename_list = joblib.load('V3C2_diff.joblib')
+    filename_list = joblib.load('V3C1_diff.joblib')
     print("Number of images to process: ", len(filename_list))
     print("Processing ...")
     for filename in tqdm(filename_list):
