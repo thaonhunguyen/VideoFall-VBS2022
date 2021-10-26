@@ -1,4 +1,5 @@
 import cv2
+import os
 import os.path as osp
 import argparse
 import joblib
@@ -36,8 +37,8 @@ def processing(args):
     filename_list = joblib.load('V3C2_diff.joblib')
     print("Number of images to process: ", len(filename_list))
     print("Processing ...")
-    for filename in tqdm(filename_list[:10]):
-        print(filename)
+    for filename in tqdm(filename_list):
+#         print(filename)
         video_name = filename.split('/')[-1][4:9]
         video_path = osp.join('/mnt/DEAKIN/VBS2022/keyframes/', video_name)
         if not osp.isdir(video_path):
