@@ -68,35 +68,30 @@ class dataset():
             self.extension = '*.png'
             pass
 
-    def get_file_name(self):
+    def get_file_name(self, load_file=True):
         '''
         Function to get a list of images' names from the source path in ascending order
+        
+        params:
+            - load_file: bool, default=True
+                Whether load the saved file of all image names or not
         '''
-        print("Getting all image names from the source path ...")
-        if dataset_name == 'LSC':
-            self.image_names = []
-            folder_names = os.listdir(DATASET_PATH)
-            for folder in tqdm(folder_names):
-                folder_path = osp.join(DATASET_PATH, folder)
-                filenames = os.listdir(folder_path)
-                self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
-
-            error_image_list = joblib.load(error_image_file)
-            for image in error_image_list:
-                self.image_names.remove(image)
+        if load_file==True:
+            print("Loading all image names ...")
+            self.image_names = joblib.load(IMAGE_NAME_PATH)
         else:
+            print("Getting all image names from the source path ...")
             self.image_names = []
             folder_names = os.listdir(DATASET_PATH)
             for folder in tqdm(folder_names):
                 folder_path = osp.join(DATASET_PATH, folder)
                 filenames = os.listdir(folder_path)
                 self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
-#             self.image_names = sort_list(glob(osp.join(self.src_path, self.extension)))
-#         error_image_list=['/mnt/DEAKIN/lsc2020/2016-08-18/20160818_142810_000.jpg',
-#                           '/mnt/DEAKIN/lsc2020/2016-08-31/20160831_083535_000.jpg',
-#                           '/mnt/DEAKIN/lsc2020/2016-09-01/20160901_120054_000.jpg',
-#                           '/mnt/DEAKIN/lsc2020/2016-09-12/20160912_122440_000.jpg']
-#         self.image_names = [self.image_names.remove(x) for x in error_image_list]
+                
+            if dataset_name == 'LSC':
+                error_image_list = joblib.load(error_image_file)
+                for image in error_image_list:
+                    self.image_names.remove(image)
 
 class CLIPSearchEngine():
     def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
