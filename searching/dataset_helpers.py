@@ -82,10 +82,10 @@ class dataset():
         else:
             print("Getting all image names from the source path ...")
             self.image_names = []
-            folder_names = os.listdir(DATASET_PATH)
+            folder_names = sort_list(os.listdir(DATASET_PATH))
             for folder in tqdm(folder_names):
                 folder_path = osp.join(DATASET_PATH, folder)
-                filenames = os.listdir(folder_path)
+                filenames = sort_list(os.listdir(folder_path))
                 self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
                 
             if dataset_name == 'LSC':
