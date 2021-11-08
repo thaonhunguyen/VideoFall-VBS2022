@@ -205,7 +205,8 @@ class CLIPSearchEngine():
                 An embedded feature vector with shape (len, 1)
         '''
         if is_image(query):
-            feature = self.feature_dict[query]
+            img_query = convert_to_concepts(query, dataset_name=DATASET_NAME)
+            feature = self.feature_dict[img_query]
             feature_vec = np.expand_dims(feature, axis=0)
             feature_vector = feature_vec.astype('float32')
         else:
