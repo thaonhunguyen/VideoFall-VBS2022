@@ -2,7 +2,7 @@ import os
 from glob import glob
 from tqdm import tqdm
 
-dataset_name = 'LSC'
+dataset_name = 'V3C'
 # dataset_name = 'V3C'
 
 if dataset_name == 'LSC':
