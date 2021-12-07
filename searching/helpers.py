@@ -72,6 +72,12 @@ def is_image(input_string):
         return True
     return False
 
+def sort_dict(input_dict, by_value=True, descending=False):
+    index = 1
+    if not by_value:
+        index = 0
+    return dict(sorted(input_dict.items(), key=lambda item: item[index], reverse=descending))
+
 def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
     '''
     Function to plot a list of images
