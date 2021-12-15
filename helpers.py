@@ -3,6 +3,7 @@ import clip
 import cv2
 import sys
 import re 
+import json
 import os
 import os.path as osp
 import matplotlib.pyplot as plt
@@ -137,8 +138,13 @@ def save_df_to_json(data_df, filename, orient='records', indent=4):
     with open(filename, 'w') as f:
         json.dump(parsed_data, f, indent=indent)
 
-
-
+def load_json(json_file):
+    with open(json_file, 'r') as handle:
+        text_data = handle.read()
+        text_data = '[' + re.sub(r'\}\s\{', '},{', text_data) + ']'
+        json_data = json.loads(text_data)
+        data = json_data[0]
+    return data
 
 
 
