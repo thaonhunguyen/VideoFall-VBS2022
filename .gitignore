@@ -4,6 +4,7 @@ preprocessing/
 __pycache__/
 **/configs
 **/yolov5_models
+**/images
 
 **/lsc.ipynb
 **/*.joblib
