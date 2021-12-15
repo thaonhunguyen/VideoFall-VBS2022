@@ -1,8 +1,10 @@
 results/
-preprocessing/
 .ipynb_checkpoints/
 __pycache__/
+**/configs
+**/yolov5_models
 
 **/lsc.ipynb
 **/*.joblib
 **/*.sh
+**/move_files.py
