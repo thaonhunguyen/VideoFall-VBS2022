@@ -255,22 +255,22 @@ class CLIPSearchEngine():
         result = [convert_to_concepts(item, dataset_name=self.dataset_name) for item in best_matched_image_names[:num_matches]]
         return result
     
-    def display_results(self, image_list=None, subplot_size=(5, 3)):
-        '''
-        Visualize images from the top most similar image list
-        
-        params:
-            - image_list: List, default=None
-                An input image list to display
-            - subplot_size: tuple, default=(5, 3)
-                The size of the plot to visualize
-        '''
-        if image_list:
-            try:
-                image_ids = [osp.join(self.dataset.src_path, item['filename']) for item in image_list]
-                plot_figures(image_ids, subplot_size=subplot_size)
-            except:
-                print('Can\'t find best matched images.')
+def display_results(image_list=None, subplot_size=(5, 3)):
+    '''
+    Visualize images from the top most similar image list
+
+    params:
+        - image_list: List, default=None
+            An input image list to display
+        - subplot_size: tuple, default=(5, 3)
+            The size of the plot to visualize
+    '''
+    if image_list:
+        try:
+            image_ids = [item['path'] for item in image_list]
+            plot_figures(image_ids, subplot_size=subplot_size)
+        except:
+            print('Can\'t find best matched images.')
 
 # images_files = glob(osp.join(DATASET_PATH, 'Images', '*.jpg'))
 # data = dataset(src_path=DATASET_PATH, feature_path=FEATURE_PATH)
