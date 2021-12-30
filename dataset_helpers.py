@@ -229,6 +229,9 @@ class CLIPSearchEngine():
         return:
             - A list of matching images to the input query
         '''
+        if self.dataset.image_names is None:
+            self.dataset.get_file_name()
+            
         if self.features is None:
             self.load_features()
 
@@ -247,12 +250,11 @@ class CLIPSearchEngine():
             best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
         else:
             # Compute the similarity between the description and each image using the Cosine similarity
-            similarities = list((feature_vector @ self.features.T).squeeze(0))
-            # Sort the images by their similarity scores
-            indices = sorted(zip(similarities, range(self.features.shape[0])), key=lambda x: x[0], reverse=True)
-            best_matched_image_names = [self.dataset.image_names[item[1]] for item in indices]
+            similarities = (feature_vector @ self.features.T).squeeze(0)
+            indices = similarities.argsort()[-num_matches:][::-1]
+            best_matched_image_names = [self.dataset.image_names[item] for item in indices]
             
-        result = [convert_to_concepts(item, dataset_name=self.dataset_name) for item in best_matched_image_names[:num_matches]]
+        result = [convert_to_concepts(item, dataset_name=self.dataset_name) for item in best_matched_image_names]
         return result
     
 def display_results(image_list=None, subplot_size=(5, 3)):
@@ -271,17 +273,3 @@ def display_results(image_list=None, subplot_size=(5, 3)):
             plot_figures(image_ids, subplot_size=subplot_size)
         except:
             print('Can\'t find best matched images.')
-
-# images_files = glob(osp.join(DATASET_PATH, 'Images', '*.jpg'))
-# data = dataset(src_path=DATASET_PATH, feature_path=FEATURE_PATH)
-# data.get_file_name()
-# # data.encode_dataset(entire_dataset=False)
-# # data.load_features()
-# print('Features: ', data.features)
-
-# query = 'two people'
-# best_images = data.search_query(query, num_matches=10)
-# print('Length of features: ', len(data.features))
-# print('Best images: ', best_images)
-# data.compute_clip_image_embeddings(image_batch=data.image_names[:10])
-# print(len(data.image_features))
