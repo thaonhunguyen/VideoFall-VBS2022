@@ -105,7 +105,7 @@ def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", 
         fig.savefig(osp.join(src_path, f'{fig_name}.png'))
         
         
-def convert_to_concepts(image_name: str, dataset_name: str):
+def convert_to_concepts(image_name: str, dataset_name='V3C'):
     '''
     Function to convert a string into the concepts having the detail of each image in VBS dataset
     
@@ -116,14 +116,7 @@ def convert_to_concepts(image_name: str, dataset_name: str):
     return:
        - 
     '''
-    if dataset_name == 'LSC':
-        filename = image_name.split('/')[-2:]
-        name = osp.join(filename[0], filename[1])
-#         name = image_name.split('/')[-1]
-        date = filename[0]
-#         time = name.split('_')[-2]
-        concepts = {'path': image_name, 'filename': name, 'date': date}
-    elif dataset_name == 'V3C1' or dataset_name == 'V3C':
+    if dataset_name == 'V3C1' or dataset_name == 'V3C':
         name = image_name.split('/')[-1]
         components = name.split('_')
         dataset = None
