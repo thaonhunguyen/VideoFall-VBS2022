@@ -78,7 +78,11 @@ class dataset():
         '''
         if load_file==True:
             print("Loading all image names ...")
-            self.image_names = joblib.load(IMAGE_NAME_PATH)
+#             self.image_names = joblib.load(IMAGE_NAME_PATH)
+            df = pd.read_csv(IMAGE_NAME_PATH, names=['filename'])
+            self.image_names = df.filename.to_list()
+            del df
+            
         else:
             print("Getting all image names from the source path ...")
             self.image_names = []

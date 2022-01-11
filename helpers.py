@@ -1,7 +1,4 @@
-# import torch
-import clip
-import cv2
-# import sys
+import csv
 import re 
 import json
 import os
@@ -130,6 +127,12 @@ def save_df_to_json(data_df, filename, orient='records', indent=4):
     parsed_data = json.loads(data)    
     with open(filename, 'w') as f:
         json.dump(parsed_data, f, indent=indent)
+
+def save_list_to_csv(obj: List, filename, delimiter='\n'):
+    with open(filename, 'w') as f:
+        # create the csv writer
+        writer = csv.writer(f, delimiter=delimiter)
+        writer.writerow(obj)
 
 def load_json(json_file):
     with open(json_file, 'r') as handle:
