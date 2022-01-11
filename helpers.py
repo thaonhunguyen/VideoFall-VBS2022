@@ -1,7 +1,7 @@
-import torch
+# import torch
 import clip
 import cv2
-import sys
+# import sys
 import re 
 import json
 import os
@@ -126,7 +126,6 @@ def convert_to_concepts(image_name: str, dataset_name='V3C'):
     return concepts
         
 def save_df_to_json(data_df, filename, orient='records', indent=4):
-    
     data = data_df.to_json(orient=orient) 
     parsed_data = json.loads(data)    
     with open(filename, 'w') as f:
@@ -140,16 +139,3 @@ def load_json(json_file):
         data = json_data[0]
     return data
 
-
-
-
-
-
-# img = '../filtering/google.jpeg'
-# img = cv2.imread(img)
-# #convert to RGB from BGR
-# img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-# dominant = DominantColors(img, cluster=5)
-# color = dominant.find_dominant_colors()
-# print(color)
