@@ -26,7 +26,7 @@ for item in tqdm(data.image_names):
     detection = model(item) 
 #    temp = detection.save(image_curr_path)
     bbox = detection.pandas().xyxy[0]
-#     try:
-#         save_df_to_json(bbox, osp.join(label_curr_path, '{0}.json'.format(concepts['filename'][:-4])))
-#     except:
-#         print(item)
+    try:
+        save_df_to_json(bbox, osp.join(label_curr_path, '{0}.json'.format(concepts['filename'][:-4])))
+    except:
+        print(item)
