@@ -37,7 +37,7 @@ elif dataset_name == 'V3C':
     METADATA_PATH = osp.join(DATASET_MASTER_PATH, 'metadata')
     IMAGE_NAME_PATH = osp.join(METADATA_PATH, f'image_names.joblib')
 
-    DATASET_PATH = osp.join(DATASET_MASTER_PATH, 'keyframes')
+    KEYFRAME_PATH = osp.join(DATASET_MASTER_PATH, 'keyframes')
     FEATURE_PATH = osp.join(METADATA_PATH, f'{DATASET_NAME}_features')
     if not osp.isdir(FEATURE_PATH):
         os.mkdir(FEATURE_PATH)
