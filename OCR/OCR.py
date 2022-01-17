@@ -74,13 +74,16 @@ def main(args):
         upper_index = min(lower_index+30000, len(text_keyframes))
         
     for img_id in tqdm(text_keyframes[lower_index:upper_index]):
-        response = run_ggapi_ocr(osp.join(KEYFRAME_PATH, img_id), client)
-        ocr_result = convert_response_to_list(response)
-        ocr_original_json = AnnotateImageResponse.to_json(response)
-        ocr_original_json = json.loads(ocr_original_json)
-        texts = [text.description for text in response.text_annotations]
-        OCR_dict[img_id] = ocr_original_json
-        OCR_text_dict[img_id] = process_text(texts)
+        try:
+            response = run_ggapi_ocr(osp.join(KEYFRAME_PATH, img_id), client)
+            ocr_result = convert_response_to_list(response)
+            ocr_original_json = AnnotateImageResponse.to_json(response)
+            ocr_original_json = json.loads(ocr_original_json)
+            texts = [text.description for text in response.text_annotations]
+            OCR_dict[img_id] = ocr_original_json
+            OCR_text_dict[img_id] = process_text(texts)
+        except:
+            print(f"There is a problem with {img_id}.")
 
     with open(OCR_filename, 'w') as fp:
         json.dump(OCR_dict, fp, indent=4)
