@@ -54,24 +54,26 @@ def process_text(text_list):
 def main(args):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = args.credential_path
     # Determine those keyframe containing text
-    if args.dataset_name == 'V3C1':
-        V3C1_OCR_path = osp.join(DATASET_MASTER_PATH, 'provided_ocr/V3C1_ocr')
-        OCR_filename = osp.join(DATASET_MASTER_PATH, f'OCR/OCR_V3C1_{args.part}.json')
-        OCR_text_filename = osp.join(DATASET_MASTER_PATH, f'OCR/OCR_V3C1_text_{args.part}.json')
-        with open(osp.join(V3C1_OCR_path, 'muchtext_keyframes.txt'), 'r') as file:
-            muchtext_keyframes = file.read().splitlines()
-        with open(osp.join(V3C1_OCR_path, 'fewtext_keyframes.txt'), 'r') as file:
-            fewtext_keyframes = file.read().splitlines()
-        text_keyframes = fewtext_keyframes + muchtext_keyframes
-        text_keyframes = sort_list(text_keyframes)
-    
+    OCR_filename = osp.join(DATASET_MASTER_PATH, f'OCR/{args.dataset_name}/OCR_{args.part}.json')
+    OCR_text_filename = osp.join(DATASET_MASTER_PATH, f'OCR/{args.dataset_name}/OCR_text_{args.part}.json')
+    OCR_keyframes_filename = osp.join(DATASET_MASTER_PATH, f'OCR/{args.dataset_name}_OCR_keyframes.txt')
+    with open(OCR_keyframes_filename, 'r') as file:
+        text_keyframes = file.read().splitlines()
+            
+    text_keyframes = sort_list(text_keyframes)
+
     # Declare API
     client = vision.ImageAnnotatorClient()
     OCR_text_dict = {}
     OCR_dict = {}
-    index = (args.part - 1)*30000 + 50000
-
-    for img_id in tqdm(text_keyframes[index:index+30000]):
+    if args.dataset_name == 'V3C1':
+        lower_index = (args.part - 1)*30000 + 50000
+        upper_index = min(lower_index+30000, len(text_keyframes))
+    elif args.dataset_name == 'V3C2':
+        lower_index = (args.part - 1)*30000
+        upper_index = min(lower_index+30000, len(text_keyframes))
+        
+    for img_id in tqdm(text_keyframes[lower_index:upper_index]):
         response = run_ggapi_ocr(osp.join(KEYFRAME_PATH, img_id), client)
         ocr_result = convert_response_to_list(response)
         ocr_original_json = AnnotateImageResponse.to_json(response)
@@ -79,8 +81,6 @@ def main(args):
         texts = [text.description for text in response.text_annotations]
         OCR_dict[img_id] = ocr_original_json
         OCR_text_dict[img_id] = process_text(texts)
-#         except:
-#             print(f"There is a problem with {img_id}")
 
     with open(OCR_filename, 'w') as fp:
         json.dump(OCR_dict, fp, indent=4)
