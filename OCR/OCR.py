@@ -82,13 +82,17 @@ def main(args):
             texts = [text.description for text in response.text_annotations]
             OCR_dict[img_id] = ocr_original_json
             OCR_text_dict[img_id] = process_text(texts)
+            with open(OCR_filename, 'w') as fp:
+                json.dump(OCR_dict, fp, indent=4)
+            with open(OCR_text_filename, 'w') as fp:
+                json.dump(OCR_text_dict, fp, indent=4)
         except:
             print(f"There is a problem with {img_id}.")
 
-    with open(OCR_filename, 'w') as fp:
-        json.dump(OCR_dict, fp, indent=4)
-    with open(OCR_text_filename, 'w') as fp:
-        json.dump(OCR_text_dict, fp, indent=4)
+#     with open(OCR_filename, 'w') as fp:
+#         json.dump(OCR_dict, fp, indent=4)
+#     with open(OCR_text_filename, 'w') as fp:
+#         json.dump(OCR_text_dict, fp, indent=4)
 
 if __name__ == '__main__':
     args = parser.parse_args()
