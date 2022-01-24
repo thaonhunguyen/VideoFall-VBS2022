@@ -41,6 +41,7 @@ if args.indir_config is not None:
     with open(args.indir_config[0], 'r') as f:
         t = f.read()
         dirs_from_file = t.split('\n')
+        dirs_from_file = list(filter(None, dirs_from_file))
     # merge 
     IMAGES_DIRECTORIES += dirs_from_file
 
