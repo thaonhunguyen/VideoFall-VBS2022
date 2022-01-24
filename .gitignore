@@ -2,7 +2,11 @@ results/
 preprocessing/
 .ipynb_checkpoints/
 __pycache__/
+**/configs
+**/yolov5_models
+**/images
 
+test.ipynb
 **/lsc.ipynb
 **/*.joblib
 **/*.sh
@@ -13,3 +17,4 @@ images/
 outputs/
 groups/
 .DS_STORE
+**/move_files.py
