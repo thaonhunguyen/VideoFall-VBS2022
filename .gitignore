@@ -6,3 +6,10 @@ __pycache__/
 **/lsc.ipynb
 **/*.joblib
 **/*.sh
+
+.idea/
+
+images/
+outputs/
+groups/
+.DS_STORE
