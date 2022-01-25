@@ -15,6 +15,7 @@ import argparse
 from configs.colors import COLOR_POINTS
 from tqdm import tqdm, trange
 from time import sleep
+import warnings
 
 parser = argparse.ArgumentParser(prog='dominant-color', description='Getting dominant colors')
 
@@ -67,7 +68,9 @@ def image_to_centroids(origin_image):
     img = blurred_image = cv2.blur(resized_image, KSIZE)
     reshaped_image=img.reshape((img.shape[1]*img.shape[0],3))
 
-    kmeans=KMeans(n_clusters=CLUSTER)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        kmeans=KMeans(n_clusters=CLUSTER)
     s=kmeans.fit(reshaped_image)
 
     labels=kmeans.labels_
@@ -78,6 +81,9 @@ def image_to_centroids(origin_image):
 
     _labels, count = np.unique(np.array(labels), return_counts=True)
     count = count.tolist()
+    
+    # if len(centroid) > len(count):
+    #     print(_labels, count, centroid, labels)
 
     new_img = np.asarray(list(map(lambda x: tuple(centroid[x] // 1), labels)), dtype=int)
     img = new_img.reshape((img.shape[0], img.shape[1], 3))
@@ -86,6 +92,7 @@ def image_to_centroids(origin_image):
     return {
         "labels": labels,
         "centroid": centroid,
+        "_labels": _labels,
         "count": count,
         "origin": resized_image,
         "blurred_image": blurred_image,
@@ -135,8 +142,8 @@ for k, v in COLOR_POINTS.items():
     for r, g, b in v:
         colors.append([k, [b, g, r]])
         
-def closest_color(p1, count, result_map):
-    centroid_index, centroid = p1
+def closest_color(centroid_index, count, result_map, centroids):
+    centroid = centroids[centroid_index]
     # diff = list(map(lambda item: diff_weighted_srgb(centroid, item[1]), colors))
     
     # USE_MANUAL_GRAY_SCALE = False
@@ -184,12 +191,13 @@ def get_unique_top_n_color(img, n = 5, return_img = False):
     new_img = img.get('new_img')
     clone_img = np.copy(new_img)
     centroid = img.get('centroid')
+    count = img.get('count')
     # print(centroid, new_img)
     
     color_list = list(
         set(
-            tuple(map(lambda centroid: closest_color(centroid, img.get('count'), result_map)
-            , enumerate(img.get('centroid'))))
+            tuple(map(lambda x: closest_color(x, count, result_map, centroid)
+            , img.get('_labels')))
         )
     )
 
