@@ -142,7 +142,8 @@ for k, v in COLOR_POINTS.items():
     for r, g, b in v:
         colors.append([k, [b, g, r]])
         
-def closest_color(centroid_index, count, result_map, centroids):
+def closest_color(ci, count, result_map, centroids, _labels):
+    label_index, centroid_index = ci
     centroid = centroids[centroid_index]
     # diff = list(map(lambda item: diff_weighted_srgb(centroid, item[1]), colors))
     
@@ -179,9 +180,9 @@ def closest_color(centroid_index, count, result_map, centroids):
     # key = str(p1[1])
     if key not in result_map:
         result_map[key] = 0
-    if centroid_index >= len(count):
-        print(count, centroid_index, key)
-    result_map[key] += count[centroid_index]
+    # if centroid_index >= len(count):
+        # print(count, centroid_index, key, _labels)
+    result_map[key] += count[label_index]
 #     key, value, count
     return key, tuple(color), tuple(centroid)
     # return key, tuple(p1[1].tolist()), tuple(centroid)
@@ -196,8 +197,8 @@ def get_unique_top_n_color(img, n = 5, return_img = False):
     
     color_list = list(
         set(
-            tuple(map(lambda x: closest_color(x, count, result_map, centroid)
-            , img.get('_labels')))
+            tuple(map(lambda x: closest_color(x, count, result_map, centroid, img.get('_labels'))
+            , enumerate(img.get('_labels'))))
         )
     )
 
