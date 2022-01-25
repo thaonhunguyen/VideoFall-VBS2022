@@ -172,6 +172,8 @@ def closest_color(p1, count, result_map):
     # key = str(p1[1])
     if key not in result_map:
         result_map[key] = 0
+    if centroid_index >= len(count):
+        print(count, centroid_index, key)
     result_map[key] += count[centroid_index]
 #     key, value, count
     return key, tuple(color), tuple(centroid)
