@@ -130,6 +130,8 @@ def image_to_centroids(origin_image):
 
 def get_number(file):
     m = re.search('_(\d+)_', file)
+    if m is None:
+        return 99999999999
     return int(m.group(0)[1:-1])
 
 def validate_folder(folder_to_validate):
