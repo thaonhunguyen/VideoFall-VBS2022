@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
-from sklearn.cluster import KMeans
+# from sklearn.cluster import KMeans
+from cuml.cluster import KMeans
 import utils
 import importlib
 import random
@@ -16,6 +17,18 @@ from configs.colors import COLOR_POINTS
 from tqdm import tqdm, trange
 from time import sleep
 import warnings
+
+import cudf
+import numpy as np
+import pandas as pd
+
+def np2cudf(df):
+    # convert numpy array to cuDF dataframe
+    df = pd.DataFrame({'fea%d'%i:df[:,i] for i in range(df.shape[1])})
+    pdf = cudf.DataFrame()
+    for c,column in enumerate(df):
+      pdf[str(c)] = df[column]
+    return pdf
 
 parser = argparse.ArgumentParser(prog='dominant-color', description='Getting dominant colors')
 
@@ -67,16 +80,18 @@ def image_to_centroids(origin_image):
 
     img = blurred_image = cv2.blur(resized_image, KSIZE)
     reshaped_image=img.reshape((img.shape[1]*img.shape[0],3))
+    raw_float32_data = np.array(reshaped_image, dtype='float32')
+    reshaped_image_cudf = np2cudf(raw_float32_data)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         kmeans=KMeans(n_clusters=CLUSTER)
-    s=kmeans.fit(reshaped_image)
+    s=kmeans.fit(reshaped_image_cudf)
 
     labels=kmeans.labels_
-    labels=list(labels)
+    labels=list(labels.to_numpy())
 
-    centroid=kmeans.cluster_centers_
+    centroid= kmeans.cluster_centers_.to_numpy()
     centroid = centroid.astype(np.uint8)
 
     _labels, count = np.unique(np.array(labels), return_counts=True)
