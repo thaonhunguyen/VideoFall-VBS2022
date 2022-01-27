@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
-# from sklearn.cluster import KMeans
-from cuml.cluster import KMeans
 import utils
 import importlib
 import random
@@ -17,18 +15,7 @@ from configs.colors import COLOR_POINTS
 from tqdm import tqdm, trange
 from time import sleep
 import warnings
-
-import cudf
-import numpy as np
-import pandas as pd
-
-def np2cudf(df):
-    # convert numpy array to cuDF dataframe
-    df = pd.DataFrame({'fea%d'%i:df[:,i] for i in range(df.shape[1])})
-    pdf = cudf.DataFrame()
-    for c,column in enumerate(df):
-      pdf[str(c)] = df[column]
-    return pdf
+import re
 
 parser = argparse.ArgumentParser(prog='dominant-color', description='Getting dominant colors')
 
@@ -46,8 +33,26 @@ parser.add_argument('--target-size', nargs=2, type=int, default=[60, 60], help='
 # K Mean
 parser.add_argument('--cluster', nargs=1, type=int, default=10, help='Kernel size for blur')
 parser.add_argument('--save-img', action='store_true', help='Save K Mean')
+parser.add_argument('--use-gpu', action='store_true', help='Use GPU')
 
 args = parser.parse_args()
+
+USE_GPU = args.use_gpu
+
+if USE_GPU:
+    from cuml.cluster import KMeans
+    import cudf
+    import numpy as np
+    import pandas as pd
+    def np2cudf(df):
+        # convert numpy array to cuDF dataframe
+        df = pd.DataFrame({'fea%d'%i:df[:,i] for i in range(df.shape[1])})
+        pdf = cudf.DataFrame()
+        for c,column in enumerate(df):
+          pdf[str(c)] = df[column]
+        return pdf
+else:
+    from sklearn.cluster import KMeans
 
 IMAGES_DIRECTORIES = args.indir
 if args.indir_config is not None:
@@ -80,19 +85,28 @@ def image_to_centroids(origin_image):
 
     img = blurred_image = cv2.blur(resized_image, KSIZE)
     reshaped_image=img.reshape((img.shape[1]*img.shape[0],3))
-    raw_float32_data = np.array(reshaped_image, dtype='float32')
-    reshaped_image_cudf = np2cudf(raw_float32_data)
+    if USE_GPU:
+        raw_float32_data = np.array(reshaped_image, dtype='float32')
+        reshaped_image_cudf = np2cudf(raw_float32_data)
+        the_image = reshaped_image_cudf
+    else:
+        the_image = reshaped_image
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         kmeans=KMeans(n_clusters=CLUSTER)
-    s=kmeans.fit(reshaped_image_cudf)
-
-    labels=kmeans.labels_
-    labels=list(labels.to_numpy())
-
-    centroid= kmeans.cluster_centers_.to_numpy()
-    centroid = centroid.astype(np.uint8)
+    s=kmeans.fit(the_image)
+    
+    if USE_GPU:
+        labels=kmeans.labels_
+        labels=list(labels.to_numpy())
+        centroid= kmeans.cluster_centers_.to_numpy()
+        centroid = centroid.astype(np.uint8)
+    else:
+        labels=kmeans.labels_
+        labels=list(labels)
+        centroid= kmeans.cluster_centers_
+        centroid = centroid.astype(np.uint8)
 
     _labels, count = np.unique(np.array(labels), return_counts=True)
     count = count.tolist()
@@ -114,9 +128,9 @@ def image_to_centroids(origin_image):
         "new_img": new_img,
     }
 
-# def get_num(file):
-#     m = re.search('_(\d+)_', file)
-#     return int(m.group(0)[1:-1])
+def get_number(file):
+    m = re.search('_(\d+)_', file)
+    return int(m.group(0)[1:-1])
 
 def validate_folder(folder_to_validate):
     IMAGES_ERROR = False
@@ -124,9 +138,10 @@ def validate_folder(folder_to_validate):
     raw_images = []
     images = []
     all_files_in_directory = os.listdir(folder_to_validate)
-    # all_files_in_directory_with_num = list(map(lambda x: (get_number(x), x), dirs))
+    all_files_in_directory_with_num = list(map(lambda x: (get_number(x), x), all_files_in_directory))
+    sorted_all_files = map(lambda y: y[1], sorted(all_files_in_directory_with_num, key=lambda tup: tup[0]))
     
-    for img_path in tqdm(all_files_in_directory, desc="validation", leave=False, unit_scale=True):
+    for img_path in tqdm(sorted_all_files, desc="validation", leave=False, unit_scale=True):
         if '.png' not in img_path:
             continue
         im = os.path.join(folder_to_validate, img_path)
@@ -217,31 +232,29 @@ def get_unique_top_n_color(img, n = 5, return_img = False):
         )
     )
 
-    color_in_images = []
-    FLAG = return_img
+    
+    # color_in_images = []
     # print(new_img)
     
+    s = set()
     color_count = []
     for c in color_list:
         key, value, ct = c
-        # print(ct)
-        clone_img[np.where((new_img==list(ct)).all(axis=2))] = list(value)
+        # clone_img[np.where((new_img==list(ct)).all(axis=2))] = list(value)
         # print(np.unique(clone_img[np.where((new_img==list(ct)).all(axis=2))]))
         # print(np.unique(clone_img[np.where((new_img==list(ct)).all(axis=2))], return_counts=True))
-        _img = np.zeros((300, 300, 3), np.uint8)
-        _img[:] = list(value)
-        color_in_images.append((_img, result_map[key]))
-        color_count.append((key, result_map[key]))
+        # _img = np.zeros((300, 300, 3), np.uint8)
+        # _img[:] = list(value)
+        # color_in_images.append((_img, result_map[key]))
+        if key not in s:
+            s.add(key)
+            color_count.append((key, result_map[key]))
 
-    sorted_colors = sorted(color_in_images, key=lambda tup: tup[1], reverse=True)
+    # sorted_colors = sorted(color_in_images, key=lambda tup: tup[1], reverse=True)
     
     sorted_color_key = sorted(color_count, key=lambda tup: tup[1], reverse=True)
-    s = set()
-    for k, v in sorted_color_key:
-        if len(s) == 5:
-            break
-        s.add(k)
-    return result_map, sorted_colors, clone_img, s
+    # return result_map, sorted_colors, clone_img, s
+    return result_map, map(lambda x: x[0], sorted_color_key)
 
 def main():
     # loop every folder in the big folder
@@ -265,7 +278,7 @@ def main():
         for image_name, the_image in tqdm(list(zip(images, images_with_centroids)), desc='Color extraction', leave=False, unit_scale=True):
             # the_image = images_with_centroids[i]
             im_kmean = the_image.get('new_img')
-            result_map, sorted_colors, new_colored_img, s = get_unique_top_n_color(the_image, 5, return_img = True)
+            result_map, s = get_unique_top_n_color(the_image, 5, return_img = True)
             if FLAG_SAVE_IMAGE:
                 path = os.path.join(OUT_IMAGES_DIRECTORY, image_name.replace("./", ""))
                 cv2.imwrite(path, im_kmean)
