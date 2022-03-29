@@ -1,6 +1,7 @@
 import re 
 import json
 import os
+import cv2
 import os.path as osp
 import matplotlib.pyplot as plt
 
@@ -141,3 +142,20 @@ def load_json(json_file):
         data = json_data[0]
     return data
 
+def resize_image(img_path, scale_percent=50, rename=False, filename=None):
+    src_img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+    scale_percent = scale_percent
+
+    #calculate the 50 percent of original dimensions
+    width = int(src_img.shape[1] * scale_percent / 100)
+    height = int(src_img.shape[0] * scale_percent / 100)
+    dsize = (width, height)
+
+    # resize image
+    output = cv2.resize(src_img, dsize)
+    
+    if rename:
+        cv2.imwrite(filename, output)
+        return
+        
+    return output
