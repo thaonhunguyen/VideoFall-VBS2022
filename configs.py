@@ -33,7 +33,7 @@ elif dataset_name == 'V3C':
     DATASET_NAME = dataset_name
     MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
     # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
-    DATASET_MASTER_PATH = '/mnt/DEAKIN/VBS2022'
+    DATASET_MASTER_PATH = '/mnt/deakin/VBS2022'
     METADATA_PATH = osp.join(DATASET_MASTER_PATH, 'metadata')
     IMAGE_NAME_PATH = osp.join(METADATA_PATH, f'image_names.joblib')
 
