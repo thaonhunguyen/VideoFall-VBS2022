@@ -10,7 +10,7 @@ parser.add_argument('--generate_features', '-g', default=True, help='Whether you
 
 def main(args):
     print("Dataset name: ", DATASET_NAME)
-    clip = CLIPSearchEngine(src_path=DATASET_PATH, feature_path=FEATURE_PATH, generate_features=args.generate_features)
+    clip = CLIPSearchEngine(src_path=DATASET_MASTER_PATH, feature_path=FEATURE_PATH, generate_features=args.generate_features)
     print(args.generate_features)
 #     dataset = clip.dataset.get_file_name()
     clip.encode_dataset(entire_dataset=True)
