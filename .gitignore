@@ -6,6 +6,7 @@ __pycache__/
 **/yolov5_models
 **/images
 
+clip_model.ipynb
 test.ipynb
 **/lsc.ipynb
 **/*.joblib
