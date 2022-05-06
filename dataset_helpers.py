@@ -185,7 +185,8 @@ class CLIPSearchEngine():
         '''
         try:
             print("Loading feature files ...")
-            feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
+#             feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
+            feature_list = joblib.load(osp.join(METADATA_PATH, 'feature_filenames.joblib'))
             for feature_file in tqdm(feature_list):
                 feature = joblib.load(feature_file)
                 self.feature_dict.update(feature)
@@ -261,7 +262,7 @@ class CLIPSearchEngine():
         result = [convert_to_concepts(item, dataset_name=self.dataset_name) for item in best_matched_image_names]
         return result
     
-def display_results(image_list=None, subplot_size=(5, 3)):
+def display_results(image_list=None, figsize=(15, 15), subplot_size=(5, 3)):
     '''
     Visualize images from the top most similar image list
 
@@ -272,8 +273,8 @@ def display_results(image_list=None, subplot_size=(5, 3)):
             The size of the plot to visualize
     '''
     if image_list:
-        try:
-            image_ids = [item['path'] for item in image_list]
-            plot_figures(image_ids, subplot_size=subplot_size)
-        except:
-            print('Can\'t find best matched images.')
+#         try:
+        image_ids = [item['path'] for item in image_list]
+        plot_figures(image_ids, subplot_size=subplot_size)
+#         except:
+#             print('Can\'t find best matched images.')

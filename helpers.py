@@ -76,7 +76,7 @@ def sort_dict(input_dict, by_value=True, descending=False):
         index = 0
     return dict(sorted(input_dict.items(), key=lambda item: item[index], reverse=descending))
 
-def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
+def plot_figures(images: List, figsize=(15, 15), subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
     '''
     Function to plot a list of images
 
@@ -87,7 +87,7 @@ def plot_figures(images: List, subplot_size=(5, 3), savefig=False, fig_name="", 
     return:
        - 
     '''
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=figsize)
     max_len = min(len(images), subplot_size[0]*subplot_size[1])
 
     for cnt, data in enumerate(images[:max_len]):
