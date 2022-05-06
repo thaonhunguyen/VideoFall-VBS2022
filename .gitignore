@@ -1,5 +1,6 @@
 results/
 preprocessing/
+dataset/
 .ipynb_checkpoints/
 __pycache__/
 **/configs
