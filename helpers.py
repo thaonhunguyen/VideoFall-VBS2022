@@ -4,6 +4,7 @@ import os
 import cv2
 import os.path as osp
 import matplotlib.pyplot as plt
+import datetime
 
 from typing import List
 from tqdm import tqdm
@@ -159,3 +160,12 @@ def resize_image(img_path, scale_percent=50, rename=False, filename=None):
         return
         
     return output
+
+def time_this(func):
+    def calc_time(*args, **kwargs):
+        before = datetime.datetime.now()
+        x = func(*args, **kwargs)
+        after = datetime.datetime.now()
+        print("Function {} elapsed time: {}".format(func.__name__, after-before))
+        return x
+    return calc_time

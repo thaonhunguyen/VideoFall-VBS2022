@@ -179,6 +179,7 @@ class CLIPSearchEngine():
             print("Load extracted features ...")
             self.load_features()
 
+    @time_this
     def load_features(self):
         '''
         Load saved metadata (extracted features) after encoding
@@ -186,7 +187,7 @@ class CLIPSearchEngine():
         try:
             print("Loading feature files ...")
 #             feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
-            feature_list = joblib.load(osp.join(METADATA_PATH, 'feature_filenames.joblib'))
+            feature_list = joblib.load(FEATURE_FILENAME_PATH)
             for feature_file in tqdm(feature_list):
                 feature = joblib.load(feature_file)
                 self.feature_dict.update(feature)
@@ -275,6 +276,6 @@ def display_results(image_list=None, figsize=(15, 15), subplot_size=(5, 3)):
     if image_list:
 #         try:
         image_ids = [item['path'] for item in image_list]
-        plot_figures(image_ids, subplot_size=subplot_size)
+        plot_figures(image_ids, figsize=figsize, subplot_size=subplot_size)
 #         except:
 #             print('Can\'t find best matched images.')
