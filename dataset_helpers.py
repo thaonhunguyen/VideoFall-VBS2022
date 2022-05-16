@@ -8,7 +8,7 @@ import torch
 import clip
 import math
 import joblib
-import faiss
+#import faiss
 import numpy as np
 import pandas as pd
 
@@ -245,15 +245,16 @@ class CLIPSearchEngine():
         feature_vector = self.encode_input_query(query)
         
         if ss_type == 'faiss':
-            dimension = self.features.shape[1]
-            # Initialize faiss searching object
-            quantiser = faiss.IndexFlatL2(dimension)  
-            index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
-            index.train(self.features) 
-            index.add(self.features)  
-            # Calculate the distances of the text vectors 
-            distances, indices = index.search(feature_vector, num_matches)
-            best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
+            pass
+            #dimension = self.features.shape[1]
+            ## Initialize faiss searching object
+            #quantiser = faiss.IndexFlatL2(dimension)  
+            #index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
+            #index.train(self.features) 
+            #index.add(self.features)  
+            ## Calculate the distances of the text vectors 
+            #distances, indices = index.search(feature_vector, num_matches)
+            #best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
         else:
             # Compute the similarity between the description and each image using the Cosine similarity
             similarities = (feature_vector @ self.features.T).squeeze(0)
