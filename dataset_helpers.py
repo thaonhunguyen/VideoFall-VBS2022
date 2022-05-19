@@ -8,7 +8,7 @@ import torch
 import clip
 import math
 import joblib
-import faiss
+#import faiss
 import numpy as np
 import pandas as pd
 
@@ -31,7 +31,7 @@ class CLIP():
             - List of feature vectors of the images
         ''' 
         with torch.no_grad():
-            # Encode the images batch to compute the feature vectors and normalize them
+            # Encode the images batch to compute the feature vectors and normalise them
             images_features = self.model.encode_image(stacked_images)
             images_features /= images_features.norm(dim=-1, keepdim=True)
 
@@ -50,7 +50,7 @@ class CLIP():
             - A numerical array of encoded text string
         '''
         with torch.no_grad():
-            # Encode and normalize the description using CLIP
+            # Encode and normalise the description using CLIP
             text_encoded = self.model.encode_text(clip.tokenize(query).to(self.device))
             text_encoded /= text_encoded.norm(dim=-1, keepdim=True)
         
@@ -74,7 +74,7 @@ class dataset():
         
         params:
             - load_file: bool, default=True
-                Whether load the saved file of all image names or not
+                Whether load the available file of all image names or not
         '''
         if load_file==True:
             print("Loading all image names ...")
@@ -108,17 +108,17 @@ class CLIPSearchEngine():
         self.batch_size = batch_size
         self.generate_features = generate_features
 
-    def compute_clip_image_embeddings(self, image_batch: List[str]) -> np.ndarray:
+    def compute_clip_image_embeddings(self, image_batch: List[str]) -> defaultdict(list):
         '''
-        Encoded image list into vectors using the model and encoder loaded from CLIP
+        Encoded image list into vectors using the pre-trained encoder loaded from CLIP
         
         params:
            - image_batch: List(str)
                 A batch of images to encode
         
         return:
-           - image_embeddings: np.ndarray
-                image embedding vectors
+           - _: defaultdict
+                Dictionary with keys are the image names and values are the embedding vectors
         '''
         # Sort the file name of all images in batch by
         image_batch = sort_list(image_batch)
@@ -146,7 +146,7 @@ class CLIPSearchEngine():
                 Whether process the entire dataset or not
 
         returns:
-            - defaultdict
+            - _: defaultdict
                 Dictionary with keys are the image names and values are the embedding vectors
         '''
         
@@ -182,7 +182,7 @@ class CLIPSearchEngine():
     @time_this
     def load_features(self):
         '''
-        Load saved metadata (extracted features) after encoding
+        Load saved metadata files (encoded features)
         '''
         try:
             print("Loading feature files ...")
@@ -207,7 +207,7 @@ class CLIPSearchEngine():
                 An input text query to search for the target images
                 
         return:
-            - feature_vector: array
+            - _:array
                 An embedded feature vector with shape (len, 1)
         '''
         if is_image(query):
@@ -231,6 +231,10 @@ class CLIPSearchEngine():
                 An input text query to search for the target images
             - num_matches: integer, default=500
                 The number of images matching the query
+            - nlist: integer, default=10
+                Index parameter for faiss (similarity search)
+            - ss_type: str, default='faiss':
+                Similarity search type, whether 'faiss' or 'cosine' similarity
         
         return:
             - A list of matching images to the input query
@@ -245,15 +249,16 @@ class CLIPSearchEngine():
         feature_vector = self.encode_input_query(query)
         
         if ss_type == 'faiss':
-            dimension = self.features.shape[1]
-            # Initialize faiss searching object
-            quantiser = faiss.IndexFlatL2(dimension)  
-            index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
-            index.train(self.features) 
-            index.add(self.features)  
-            # Calculate the distances of the text vectors 
-            distances, indices = index.search(feature_vector, num_matches)
-            best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
+            pass
+            #dimension = self.features.shape[1]
+            ## Initialise faiss searching object
+            #quantiser = faiss.IndexFlatL2(dimension)  
+            #index = faiss.IndexIVFFlat(quantiser, dimension, nlist, faiss.METRIC_L2)
+            #index.train(self.features) 
+            #index.add(self.features)  
+            ## Calculate the distances of the text vectors 
+            #distances, indices = index.search(feature_vector, num_matches)
+            #best_matched_image_names = [self.dataset.image_names[item] for item in indices[0]]
         else:
             # Compute the similarity between the description and each image using the Cosine similarity
             similarities = (feature_vector @ self.features.T).squeeze(0)
@@ -265,13 +270,15 @@ class CLIPSearchEngine():
     
 def display_results(image_list=None, figsize=(15, 15), subplot_size=(5, 3)):
     '''
-    Visualize images from the top most similar image list
+    Visualise images from the top most similar image list
 
     params:
         - image_list: List, default=None
             An input image list to display
+        - figsize: tuple, default=(15, 15)
+            The size of the figure to visualise
         - subplot_size: tuple, default=(5, 3)
-            The size of the plot to visualize
+            The size of the plot to visualise
     '''
     if image_list:
 #         try:

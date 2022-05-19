@@ -55,15 +55,35 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
-def sort_list(input_list):
+def sort_list(input_list: List) -> List:
     '''
     Function to convert an input list into a list in ascending order based on natual keys
 
     params:
-        - input_list: Listß
+        - input_list: List
+            Input list for sorting
+            
+    return:
+        - A sorted list
     '''
     input_list.sort(key=natural_keys)
     return input_list
+
+def sort_dict(input_dict: dict, by_value=True, descending=False) -> dict:
+    '''
+    Function to convert an input dictionary into a dictionary in ascending order based on natual keys
+
+    params:
+        - input_dict: dict
+            Input dict for sorting
+            
+    return:
+        - A sorted dictionary
+    '''
+    index = 1
+    if not by_value:
+        index = 0
+    return dict(sorted(input_dict.items(), key=lambda item: item[index], reverse=descending))
 
 def is_image(input_string):
     extension = input_string.split('.')[-1]
@@ -71,22 +91,26 @@ def is_image(input_string):
         return True
     return False
 
-def sort_dict(input_dict, by_value=True, descending=False):
-    index = 1
-    if not by_value:
-        index = 0
-    return dict(sorted(input_dict.items(), key=lambda item: item[index], reverse=descending))
 
-def plot_figures(images: List, figsize=(15, 15), subplot_size=(5, 3), savefig=False, fig_name="", src_path=None):
+
+def plot_figures(images: List, figsize=(15, 15), subplot_size=(5, 3), savefig=False, fig_name=None, src_path=None):
     '''
     Function to plot a list of images
 
     params:
-        - images: List,
+        - images: List
             A list of images to visualize
-    
-    return:
-       - 
+        - figsize: tuple, default=(15, 15)
+            The size of the figure to visualise
+        - subplot_size: tuple, default=(5, 3)
+            The size of the plot to visualise
+        - savefig: bool, default=False
+            Whether to save the figure or not
+        - fig_name: str, default=None
+            Figure name if savefig is True
+        - scr_path: str, default=None
+            The source directory to save the figure
+        
     '''
     fig = plt.figure(figsize=figsize)
     max_len = min(len(images), subplot_size[0]*subplot_size[1])
@@ -103,16 +127,19 @@ def plot_figures(images: List, figsize=(15, 15), subplot_size=(5, 3), savefig=Fa
         fig.savefig(osp.join(src_path, f'{fig_name}.png'))
         
         
-def convert_to_concepts(image_name: str, dataset_name='V3C'):
+def convert_to_concepts(image_name: str, dataset_name='V3C') -> list:
     '''
     Function to convert a string into the concepts having the detail of each image in VBS dataset
     
     params:
-        - name: type, default=
-            description
+        - image_name: str
+            Input image's name
+        - dataset_name: str, default='V3C'
+            The name of dataset to convert the concept
     
     return:
-       - 
+       - _: dict
+           Detail information related to the dataset
     '''
     if dataset_name == 'V3C1' or dataset_name == 'V3C':
         name = image_name.split('/')[-1]

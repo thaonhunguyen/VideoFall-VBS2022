@@ -6,7 +6,7 @@ Below is an example of how you can setting up VideoFall search engine.
 
 1. Clone the repo
 ```
-git clone git@github.com:thaonhunguyen/VideoFall-VBS2022.git
+git clone https://github.com/thaonhunguyen/VideoFall-VBS2022.git
 ```
 2. Install required packages
 You need to create new virtual environment before installing packages.

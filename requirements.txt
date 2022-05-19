@@ -1,6 +1,6 @@
 beautifulsoup4==4.11.1
 contractions==0.1.66
-faiss-gpu==1.7.1.post2
+ipykernel==6.13.0
 joblib==1.1.0
 matplotlib==3.5.1
 matplotlib-inline==0.1.3
