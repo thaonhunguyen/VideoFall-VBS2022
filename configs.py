@@ -3,45 +3,31 @@ import os.path as osp
 from glob import glob
 from tqdm import tqdm
 
-dataset_name = 'V3C'
-# dataset_name = 'V3C'
+model_name = 'L14'
+# model_name = 'L14_336'
+# model_name = 'B32'
 
-if dataset_name == 'LSC':
-    DATASET_NAME = dataset_name
-    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
-    IMAGE_NAME_PATH = osp.join(MASTER_PATH, 'results', f'{DATASET_NAME}_image_names.joblib')
+DATASET_NAME = 'V3C'
+MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
+# DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
+DATASET_MASTER_PATH = '/mnt/deakin/VBS2022'
+METADATA_PATH = osp.join(DATASET_MASTER_PATH, 'metadata')
+EMBEDDING_PATH = osp.join(DATASET_MASTER_PATH, 'embedding_features')
+IMAGE_NAME_PATH = osp.join(METADATA_PATH, f'image_names.joblib')
 
-    DATASET_PATH = '/mnt/data/lsc2020' 
-    error_image_file = '/home/ntnhu/projects/LSC2021/LSC_clip_model/error_images.joblib'
-    FEATURE_PATH = osp.join(MASTER_PATH, 'results', f'{DATASET_NAME}_features')
-    if not osp.isdir(FEATURE_PATH):
-        os.mkdir(FEATURE_PATH)
+KEYFRAME_PATH = osp.join(DATASET_MASTER_PATH, 'keyframes')
+if model_name == 'B32':
+    FEATURE_FILENAME_PATH = osp.join(EMBEDDING_PATH, f'B32_features_512_filenames.joblib')
+    FEATURE_DICT_PATH = osp.join(EMBEDDING_PATH, f'B32_features_512.pkl')
+    FEATURE_PATH = osp.join(EMBEDDING_PATH, f'B32_features_512')
+elif model_name == 'L14':
+    FEATURE_FILENAME_PATH = osp.join(EMBEDDING_PATH, f'L14_features_512_filenames.joblib')
+    FEATURE_DICT_PATH = osp.join(EMBEDDING_PATH, f'L14_features_512.pkl')
+    FEATURE_PATH = osp.join(EMBEDDING_PATH, f'L14_features_512')
+elif model_name == 'L14_336':
+    FEATURE_FILENAME_PATH = osp.join(EMBEDDING_PATH, f'L14_336_features_128_filenames.joblib')
+    FEATURE_DICT_PATH = osp.join(EMBEDDING_PATH, f'L14_336_features_128.pkl')
+    FEATURE_PATH = osp.join(EMBEDDING_PATH, f'L14_336_features_128')
 
-elif dataset_name == 'V3C1':
-    DATASET_NAME = dataset_name
-    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
-    # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
-    DATASET_MASTER_PATH = '/mnt/SEAGATE/root/V3C1'
-    IMAGE_NAME_PATH = osp.join(MASTER_PATH, 'results', f'{DATASET_NAME}_image_names.joblib')
-
-    DATASET_PATH = osp.join(DATASET_MASTER_PATH, 'resized_keyframes')
-    FEATURE_PATH = osp.join(MASTER_PATH, 'results', f'{DATASET_NAME}_features')
-    if not osp.isdir(FEATURE_PATH):
-        os.mkdir(FEATURE_PATH)
-        
-elif dataset_name == 'V3C':
-    DATASET_NAME = dataset_name
-    MASTER_PATH = '/home/ntnhu/projects/VideoFall-VBS2022'
-    # DATASET_MASTER_PATH = '/home/SharedFolder/VBS2021/dataset'
-    DATASET_MASTER_PATH = '/mnt/deakin/VBS2022'
-    METADATA_PATH = osp.join(DATASET_MASTER_PATH, 'metadata')
-    IMAGE_NAME_PATH = osp.join(METADATA_PATH, f'image_names.joblib')
-
-    KEYFRAME_PATH = osp.join(DATASET_MASTER_PATH, 'keyframes')
-#     FEATURE_FILENAME_PATH = osp.join(METADATA_PATH, f'{DATASET_NAME}_feature_filenames.joblib')
-#     FEATURE_PATH = osp.join(METADATA_PATH, f'{DATASET_NAME}_features')
-    FEATURE_FILENAME_PATH = osp.join(METADATA_PATH, f'{DATASET_NAME}_feature_512_filenames.joblib')
-    FEATURE_PATH = osp.join(METADATA_PATH, f'{DATASET_NAME}_features_512')
-    
-    if not osp.isdir(FEATURE_PATH):
-        os.mkdir(FEATURE_PATH)
+if not osp.isdir(FEATURE_PATH):
+    os.mkdir(FEATURE_PATH)
