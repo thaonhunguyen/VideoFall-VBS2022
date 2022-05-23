@@ -13,3 +13,5 @@ test.ipynb
 **/*.joblib
 **/*.sh
 **/move_files.py
+
+objects/
