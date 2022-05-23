@@ -17,4 +17,7 @@ torch==1.9.1
 torchaudio==0.9.1
 torchvision==0.10.1
 tqdm==4.64.0
-clip @ git+https://github.com/openai/CLIP.git@04f4dc2ca1ed0acc9893bd1a3b526a7e02c4bb10
+cudatoolkit==11.0
+ftfy==6.0.3
+regex==2.5.114
+git+https://github.com/openai/CLIP.git

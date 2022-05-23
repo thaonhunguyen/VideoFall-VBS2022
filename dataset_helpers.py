@@ -5,6 +5,7 @@ from typing import List
 from collections import defaultdict
 
 import torch
+import pickle
 import clip
 import math
 import joblib
@@ -14,7 +15,9 @@ import pandas as pd
 
 # Define the CLIP encoding model class
 class CLIP():
-    def __init__(self, model_name='ViT-B/32'):
+#     def __init__(self, model_name='ViT-B/32'):
+    #def __init__(self, model_name='ViT-L/14'):
+    def __init__(self, model_name='ViT-L/14@336px'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model_name = model_name
         self.model, self.encoder = clip.load(self.model_name, device=self.device)
@@ -167,14 +170,14 @@ class CLIPSearchEngine():
             for i in tqdm(range(batches)):
             # for i in tqdm(range(10)):
                 embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
-                try:
+#                 try:
                     # Select the images for the current batch
-                    batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
-                    # Compute the features and save to a joblib file
-                    batch_embeddings = self.compute_clip_image_embeddings(batch_files)
-                    joblib.dump(batch_embeddings, embedding_filename)
-                except:
-                    print(f"Problem with batch {i}.")
+                batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
+                # Compute the features and save to a joblib file
+                batch_embeddings = self.compute_clip_image_embeddings(batch_files)
+                joblib.dump(batch_embeddings, embedding_filename)
+#                 except:
+#                     print(f"Problem with batch {i}.")
         else:
             print("Load extracted features ...")
             self.load_features()
@@ -184,19 +187,21 @@ class CLIPSearchEngine():
         '''
         Load saved metadata files (encoded features)
         '''
-        try:
-            print("Loading feature files ...")
-#             feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
-            feature_list = joblib.load(FEATURE_FILENAME_PATH)
-            for feature_file in tqdm(feature_list):
-                feature = joblib.load(feature_file)
-                self.feature_dict.update(feature)
-                del feature
-            temp = self.feature_dict.values()
-            self.features = np.asarray([*temp]).astype('float32')
-            del temp
-        except:
-            print('There is no existing feature files.')
+#         try:
+        print("Loading feature files ...")
+# #             feature_list  = sort_list(glob(osp.join(self.feature_path, '*.joblib')))
+#             feature_list = joblib.load(FEATURE_FILENAME_PATH)
+#             for feature_file in tqdm(feature_list):
+#                 feature = joblib.load(feature_file)
+#                 self.feature_dict.update(feature)
+#                 del feature
+        with open(osp.join(FEATURE_DICT_PATH), 'rb') as file:
+            self.feature_dict = pickle.load(file)
+        temp = self.feature_dict.values()
+        self.features = np.asarray([*temp]).astype('float32')
+        del temp
+#         except:
+#             print('There is no existing feature files.')
             
     def encode_input_query(self, query: str) -> np.array:
         '''
