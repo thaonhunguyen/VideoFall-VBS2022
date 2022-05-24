@@ -19,11 +19,10 @@ clip.dataset.get_file_name()
 print('Loading Features', file=sys.stdout)
 clip.load_features()
 
-with open("feature_dict.pkl", "rb") as a_file:
-    print('Loading Feature Dict', file=sys.stdout)
-    clip.feature_dict = pickle.load(a_file)
-    a_file.close()
-    
+# with open("feature_dict.pkl", "rb") as a_file:
+#     print('Loading Feature Dict', file=sys.stdout)
+#     clip.feature_dict = pickle.load(a_file)
+#     a_file.close()
 
 from flask import Flask, request
 
@@ -54,6 +53,14 @@ def search():
     }
 
 
+@app.route('/api/server-time', methods=['GET'])
+def servertime():
+    current_time = time.time()
+    return {
+        'current_time': str(current_time),
+    }
+
+
 @app.route('/api/find_similar_keyframes/<video_id>/<keyframe_id>', methods=['GET'])
 def similar_keyframes(video_id, keyframe_id):
     # query = f'/mnt/deakin/VBS2022/keyframes/{video_id}/shot{video_id}_{keyframe_id}_RKF.png'
@@ -73,5 +80,7 @@ def similar_keyframes(video_id, keyframe_id):
     
     
 if __name__ == '__main__':
-    print('Running server', file=sys.stdout)
-    app.run(host='0.0.0.0', port=6007, debug=True)
+    host = '0.0.0.0'
+    port = 6007
+    print(f'Running server on {host} port {port}', file=sys.stdout)
+    app.run(host=host, port=port, debug=False)
