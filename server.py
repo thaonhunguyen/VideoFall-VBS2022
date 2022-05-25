@@ -63,8 +63,7 @@ def servertime():
 
 @app.route('/api/find_similar_keyframes/<video_id>/<keyframe_id>', methods=['GET'])
 def similar_keyframes(video_id, keyframe_id):
-    # query = f'/mnt/deakin/VBS2022/keyframes/{video_id}/shot{video_id}_{keyframe_id}_RKF.png'
-    # img_query = convert_to_concepts(query, dataset_name=DATASET_NAME)['filename']
+    # TODO
     img_query = f'shot{video_id}_{keyframe_id}_RKF.png'
     feature = clip.feature_dict[img_query]
     feature_vec = np.expand_dims(feature, axis=0)
