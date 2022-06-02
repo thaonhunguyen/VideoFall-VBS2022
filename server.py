@@ -1,15 +1,12 @@
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 from dataset_helpers import *
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np 
-import faiss
 import time
-import joblib
-import csv
-import subprocess
 from configs import *
-import pickle
 
 generate_features = True
 
@@ -37,6 +34,7 @@ def format_result(result_entity):
         # "path": result_entity['path'],
         "video": result_entity['video'],
         "shot": result_entity['shot'],
+        "id": result_entity['filename'],
     }
 
 
@@ -79,7 +77,7 @@ def similar_keyframes(video_id, keyframe_id):
     
     
 if __name__ == '__main__':
-    host = '0.0.0.0'
-    port = 6007
+    host = os.environ['HOST']
+    port = os.environ['PORT']
     print(f'Running server on {host} port {port}', file=sys.stdout)
     app.run(host=host, port=port, debug=False)

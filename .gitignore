@@ -15,3 +15,4 @@ test.ipynb
 **/move_files.py
 
 objects/
+.env
