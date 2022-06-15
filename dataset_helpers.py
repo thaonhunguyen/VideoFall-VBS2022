@@ -9,6 +9,7 @@ import pickle
 import clip
 import math
 import joblib
+import glob
 #import faiss
 import numpy as np
 import pandas as pd
@@ -88,17 +89,26 @@ class dataset():
             
         else:
             print("Getting all image names from the source path ...")
-            self.image_names = []
-            folder_names = sort_list(os.listdir(DATASET_PATH))
-            for folder in tqdm(folder_names):
-                folder_path = osp.join(DATASET_PATH, folder)
-                filenames = sort_list(os.listdir(folder_path))
-                self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
-                
-            if dataset_name == 'LSC':
-                error_image_list = joblib.load(error_image_file)
-                for image in error_image_list:
-                    self.image_names.remove(image)
+            if dataset_name == 'LSC22':
+                filenames = glob.glob(osp.join(DATASET_MASTER_PATH, '*/*/*.jpg'), recursive=True)
+                with open(osp.join(DATASET_MASTER_PATH, 'excluded_images.txt'), 'rb') as file:
+                    excluded_images = file.read().splitlines()
+                image_names = [item for item in filenames if item not in excluded_images]
+                self.image_names = sort_list(image_names)
+                joblib.dump(self.image_names, IMAGE_NAME_PATH)
+#                 self.image_names = filenames
+            else:
+                self.image_names = []
+                folder_names = sort_list(os.listdir(DATASET_PATH))
+                for folder in tqdm(folder_names):
+                    folder_path = osp.join(DATASET_PATH, folder)
+                    filenames = sort_list(os.listdir(folder_path))
+                    self.image_names.extend([osp.join(folder_path, filename) for filename in filenames])
+
+    #             if dataset_name == 'LSC':
+    #                 error_image_list = joblib.load(error_image_file)
+    #                 for image in error_image_list:
+    #                     self.image_names.remove(image)
 
 class CLIPSearchEngine():
     def __init__(self, dataset_name=DATASET_NAME, src_path='', feature_path='', batch_size=16, generate_features=False):
@@ -165,19 +175,26 @@ class CLIPSearchEngine():
             batches = 10
         
         if self.generate_features:
+            self.feature_dict = {}
             print("Generate features ...")
             # Process each batch
             for i in tqdm(range(batches)):
             # for i in tqdm(range(10)):
-                embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
-#                 try:
-                    # Select the images for the current batch
+#                 embedding_filename = osp.join(self.feature_path, f'{i:010d}.joblib')
+# #                 try:
+#                     # Select the images for the current batch
+#                 batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
+#                 # Compute the features and save to a joblib file
+#                 batch_embeddings = self.compute_clip_image_embeddings(batch_files)
+#                 joblib.dump(batch_embeddings, embedding_filename)
+#                 except:
+#                     print(f"Problem with batch {i}.")
                 batch_files = self.dataset.image_names[i*self.batch_size : (i+1)*self.batch_size]
                 # Compute the features and save to a joblib file
                 batch_embeddings = self.compute_clip_image_embeddings(batch_files)
-                joblib.dump(batch_embeddings, embedding_filename)
-#                 except:
-#                     print(f"Problem with batch {i}.")
+                self.feature_dict.update(batch_embeddings)
+            with open(osp.join(FEATURE_DICT_PATH), 'wb') as file:
+                pickle.dump(self.feature_dict, file)
         else:
             print("Load extracted features ...")
             self.load_features()
