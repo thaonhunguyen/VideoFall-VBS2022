@@ -3,6 +3,7 @@ preprocessing/
 dataset/
 .ipynb_checkpoints/
 __pycache__/
+VBS-Server/
 **/configs
 **/yolov5_models
 **/images
