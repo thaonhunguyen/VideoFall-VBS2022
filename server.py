@@ -1,15 +1,12 @@
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 from dataset_helpers import *
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np 
-import faiss
 import time
-import joblib
-import csv
-import subprocess
 from configs import *
-import pickle
 
 generate_features = True
 
@@ -19,11 +16,10 @@ clip.dataset.get_file_name()
 print('Loading Features', file=sys.stdout)
 clip.load_features()
 
-with open("feature_dict.pkl", "rb") as a_file:
-    print('Loading Feature Dict', file=sys.stdout)
-    clip.feature_dict = pickle.load(a_file)
-    a_file.close()
-    
+# with open("feature_dict.pkl", "rb") as a_file:
+#     print('Loading Feature Dict', file=sys.stdout)
+#     clip.feature_dict = pickle.load(a_file)
+#     a_file.close()
 
 from flask import Flask, request
 
@@ -38,6 +34,7 @@ def format_result(result_entity):
         # "path": result_entity['path'],
         "video": result_entity['video'],
         "shot": result_entity['shot'],
+        "id": result_entity['filename'],
     }
 
 
@@ -54,10 +51,17 @@ def search():
     }
 
 
+@app.route('/api/server-time', methods=['GET'])
+def servertime():
+    current_time = time.time()
+    return {
+        'current_time': str(current_time),
+    }
+
+
 @app.route('/api/find_similar_keyframes/<video_id>/<keyframe_id>', methods=['GET'])
 def similar_keyframes(video_id, keyframe_id):
-    # query = f'/mnt/deakin/VBS2022/keyframes/{video_id}/shot{video_id}_{keyframe_id}_RKF.png'
-    # img_query = convert_to_concepts(query, dataset_name=DATASET_NAME)['filename']
+    # TODO
     img_query = f'shot{video_id}_{keyframe_id}_RKF.png'
     feature = clip.feature_dict[img_query]
     feature_vec = np.expand_dims(feature, axis=0)
@@ -73,5 +77,7 @@ def similar_keyframes(video_id, keyframe_id):
     
     
 if __name__ == '__main__':
-    print('Running server', file=sys.stdout)
-    app.run(host='0.0.0.0', port=6007, debug=True)
+    host = os.environ['HOST']
+    port = os.environ['PORT']
+    print(f'Running server on {host} port {port}', file=sys.stdout)
+    app.run(host=host, port=port, debug=False)
