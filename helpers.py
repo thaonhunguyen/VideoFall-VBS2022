@@ -141,6 +141,7 @@ def convert_to_concepts(image_name: str, dataset_name='V3C') -> list:
        - _: dict
            Detail information related to the dataset
     '''
+    concepts = {}
     if dataset_name == 'V3C1' or dataset_name == 'V3C':
         name = image_name.split('/')[-1]
         components = name.split('_')
@@ -148,6 +149,13 @@ def convert_to_concepts(image_name: str, dataset_name='V3C') -> list:
         video = components[-3][4:]
         shot = components[-2]
         concepts = {'path': image_name, 'filename': name, 'dataset': dataset, 'video': video, 'shot': shot}
+    elif dataset_name == 'LSC22':
+        name = image_name.split('/')[-1]
+        components = name.split('_')
+        dataset = None
+        date = components[-3]
+        time = components[-2]
+        concepts = {'path': image_name, 'filename': name, 'dataset': dataset, 'date': date, 'time': time}
     return concepts
         
 def save_df_to_json(data_df, filename, orient='records', indent=4):
